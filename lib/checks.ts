@@ -4,7 +4,8 @@
  * Helps maintain consistency across all test scripts
  */
 
-import { check, Response } from 'k6';
+import { check } from 'k6';
+import { RefinedResponse, ResponseType } from 'k6/http';
 import { Rate } from 'k6/metrics';
 
 // Custom metric to track overall check success rate
@@ -16,7 +17,10 @@ export const checkSuccessRate = new Rate('check_success_rate');
  * @param checkName - Optional custom name for the check
  * @returns True if check passed
  */
-export function checkStatusOk(response: Response, checkName: string = 'status is 2xx'): boolean {
+export function checkStatusOk(
+  response: RefinedResponse<ResponseType>,
+  checkName: string = 'status is 2xx'
+): boolean {
   const result = check(response, {
     [checkName]: (r) => r.status >= 200 && r.status < 300,
   });
@@ -34,7 +38,11 @@ export function checkStatusOk(response: Response, checkName: string = 'status is
  * @param checkName - Optional custom name for the check
  * @returns True if check passed
  */
-export function checkStatus(response: Response, expectedStatus: number, checkName?: string): boolean {
+export function checkStatus(
+  response: RefinedResponse<ResponseType>,
+  expectedStatus: number,
+  checkName?: string
+): boolean {
   const name = checkName || `status is ${expectedStatus}`;
 
   const result = check(response, {
@@ -51,9 +59,12 @@ export function checkStatus(response: Response, expectedStatus: number, checkNam
  * @param fields - Array of field paths to check (e.g., ['data.id', 'data.name'])
  * @returns True if all checks passed
  */
-export function checkJsonFields(response: Response, fields: string[]): boolean {
+export function checkJsonFields(
+  response: RefinedResponse<ResponseType>,
+  fields: string[]
+): boolean {
   // Build checks object dynamically for each field
-  const checks: { [key: string]: (r: Response) => boolean } = {};
+  const checks: { [key: string]: (r: RefinedResponse<ResponseType>) => boolean } = {};
 
   fields.forEach((field) => {
     checks[`has field: ${field}`] = (r) => {
@@ -78,8 +89,11 @@ export function checkJsonFields(response: Response, fields: string[]): boolean {
  * @param expectedValues - Object with field paths as keys and expected values
  * @returns True if all checks passed
  */
-export function checkJsonValues(response: Response, expectedValues: { [key: string]: any }): boolean {
-  const checks: { [key: string]: (r: Response) => boolean } = {};
+export function checkJsonValues(
+  response: RefinedResponse<ResponseType>,
+  expectedValues: { [key: string]: string | number | boolean }
+): boolean {
+  const checks: { [key: string]: (r: RefinedResponse<ResponseType>) => boolean } = {};
 
   Object.keys(expectedValues).forEach((field) => {
     const expectedValue = expectedValues[field];
@@ -106,11 +120,15 @@ export function checkJsonValues(response: Response, expectedValues: { [key: stri
  * @param checkName - Optional custom name for the check
  * @returns True if check passed
  */
-export function checkResponseTime(response: Response, maxDuration: number, checkName?: string): boolean {
+export function checkResponseTime(
+  response: RefinedResponse<ResponseType>,
+  maxDuration: number,
+  checkName?: string
+): boolean {
   const name = checkName || `response time < ${maxDuration}ms`;
 
   const result = check(response, {
-    [name]: (r) => r.timings.duration < maxDuration,
+    [name]: (r) => (r as any).timings.duration < maxDuration,
   });
 
   checkSuccessRate.add(result);
@@ -124,11 +142,19 @@ export function checkResponseTime(response: Response, maxDuration: number, check
  * @param checkName - Optional custom name for the check
  * @returns True if check passed
  */
-export function checkBodyContains(response: Response, text: string, checkName?: string): boolean {
+export function checkBodyContains(
+  response: RefinedResponse<ResponseType>,
+  text: string,
+  checkName?: string
+): boolean {
   const name = checkName || `body contains '${text}'`;
 
   const result = check(response, {
-    [name]: (r) => r.body !== undefined && r.body.includes(text),
+    [name]: (r) =>
+      r.body !== undefined &&
+      r.body !== null &&
+      typeof r.body === 'string' &&
+      r.body.includes(text),
   });
 
   checkSuccessRate.add(result);
@@ -141,7 +167,10 @@ export function checkBodyContains(response: Response, text: string, checkName?: 
  * @param expectedType - Expected content type (e.g., 'application/json')
  * @returns True if check passed
  */
-export function checkContentType(response: Response, expectedType: string): boolean {
+export function checkContentType(
+  response: RefinedResponse<ResponseType>,
+  expectedType: string
+): boolean {
   const result = check(response, {
     [`content-type is ${expectedType}`]: (r) => {
       const contentType = r.headers['Content-Type'] || r.headers['content-type'];
@@ -160,18 +189,21 @@ export function checkContentType(response: Response, expectedType: string): bool
  * @param maxDuration - Maximum acceptable duration in milliseconds (optional)
  * @returns True if all checks passed
  */
-export function checkApiSuccess(response: Response, maxDuration?: number): boolean {
-  const checks: { [key: string]: (r: Response) => boolean } = {
+export function checkApiSuccess(
+  response: RefinedResponse<ResponseType>,
+  maxDuration?: number
+): boolean {
+  const checks: { [key: string]: (r: RefinedResponse<ResponseType>) => boolean } = {
     'status is 2xx': (r) => r.status >= 200 && r.status < 300,
     'content-type is JSON': (r) => {
-      const contentType = r.headers['Content-Type'] || r.headers['content-type'];
+      const contentType = (r.headers as any)['Content-Type'] || (r.headers as any)['content-type'];
       return contentType !== undefined && contentType.includes('application/json');
     },
   };
 
   // Add response time check if maxDuration is specified
   if (maxDuration !== undefined) {
-    checks[`response time < ${maxDuration}ms`] = (r) => r.timings.duration < maxDuration;
+    checks[`response time < ${maxDuration}ms`] = (r) => (r as any).timings.duration < maxDuration;
   }
 
   const result = check(response, checks);
@@ -188,15 +220,24 @@ export function checkApiSuccess(response: Response, maxDuration?: number): boole
  * @param expectedError - Optional error message or code to check in response
  * @returns True if checks passed
  */
-export function checkExpectedError(response: Response, expectedStatus: number, expectedError?: string): boolean {
-  const checks: { [key: string]: (r: Response) => boolean } = {
+export function checkExpectedError(
+  response: RefinedResponse<ResponseType>,
+  expectedStatus: number,
+  expectedError?: string
+): boolean {
+  const checks: { [key: string]: (r: RefinedResponse<ResponseType>) => boolean } = {
     [`status is ${expectedStatus}`]: (r) => r.status === expectedStatus,
   };
 
   // Check for specific error message if provided
   if (expectedError) {
     checks[`error contains '${expectedError}'`] = (r) => {
-      return r.body !== undefined && r.body.includes(expectedError);
+      return (
+        r.body !== undefined &&
+        r.body !== null &&
+        typeof r.body === 'string' &&
+        r.body.includes(expectedError)
+      );
     };
   }
 
@@ -213,8 +254,11 @@ export function checkExpectedError(response: Response, expectedStatus: number, e
  * @param schema - Schema definition with field names and expected types
  * @returns True if all checks passed
  */
-export function checkJsonSchema(response: Response, schema: { [field: string]: string }): boolean {
-  const checks: { [key: string]: (r: Response) => boolean } = {};
+export function checkJsonSchema(
+  response: RefinedResponse<ResponseType>,
+  schema: { [field: string]: string }
+): boolean {
+  const checks: { [key: string]: (r: RefinedResponse<ResponseType>) => boolean } = {};
 
   Object.keys(schema).forEach((field) => {
     const expectedType = schema[field];
@@ -244,9 +288,11 @@ export function checkJsonSchema(response: Response, schema: { [field: string]: s
  * @param checks - Check definitions
  * @returns True if all checks passed
  */
-export function executeChecks(response: Response, checks: { [name: string]: (r: Response) => boolean }): boolean {
+export function executeChecks(
+  response: RefinedResponse<ResponseType>,
+  checks: { [name: string]: (r: RefinedResponse<ResponseType>) => boolean }
+): boolean {
   const result = check(response, checks);
   checkSuccessRate.add(result);
   return result;
 }
-

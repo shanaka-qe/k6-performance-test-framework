@@ -80,7 +80,7 @@ export function setup() {
 }
 
 // Main test function: Realistic user flow
-export default function (data: any) {
+export default function (_data: Record<string, unknown>) {
   const httpClient = new HttpClient(config);
 
   // Track iteration
@@ -179,8 +179,8 @@ export default function (data: any) {
 }
 
 // Teardown function
-export function teardown(data: any) {
-  const totalMinutes = (Date.now() - data.startTime) / 1000 / 60;
+export function teardown(_data: Record<string, unknown>) {
+  const totalMinutes = (Date.now() - (_data as any).startTime) / 1000 / 60;
 
   console.log('=== Soak Test Complete ===');
   console.log(`Total duration: ${totalMinutes.toFixed(1)} minutes`);
@@ -191,4 +191,3 @@ export function teardown(data: any) {
   console.log('4. Verify no response time degradation');
   console.log('5. Confirm error rate remained stable');
 }
-

@@ -5,7 +5,7 @@
  */
 
 import http, { RefinedResponse, ResponseType } from 'k6/http';
-import { check, sleep } from 'k6';
+import { sleep } from 'k6';
 import { Config } from './env';
 
 // Interface for HTTP request parameters
@@ -15,7 +15,7 @@ export interface RequestParams {
   tags?: { [key: string]: string };
   cookies?: { [key: string]: string };
   redirects?: number;
-  auth?: string;
+  auth?: string | { username: string; password: string };
 }
 
 // Interface for retry configuration
@@ -86,7 +86,8 @@ export class HttpClient {
    */
   private calculateBackoff(attempt: number): number {
     // Calculate exponential delay: initialDelay * (multiplier ^ attempt)
-    const delay = this.retryConfig.initialDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt);
+    const delay =
+      this.retryConfig.initialDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt);
     // Cap the delay at maxDelay to prevent excessive waiting
     return Math.min(delay, this.retryConfig.maxDelay);
   }
@@ -216,7 +217,11 @@ export class HttpClient {
    * @param params - Request parameters (optional)
    * @returns HTTP response
    */
-  public post(url: string, body: string | object, params?: RequestParams): RefinedResponse<ResponseType> {
+  public post(
+    url: string,
+    body: string | object,
+    params?: RequestParams
+  ): RefinedResponse<ResponseType> {
     return this.executeWithRetry('POST', url, body, params);
   }
 
@@ -227,7 +232,11 @@ export class HttpClient {
    * @param params - Request parameters (optional)
    * @returns HTTP response
    */
-  public put(url: string, body: string | object, params?: RequestParams): RefinedResponse<ResponseType> {
+  public put(
+    url: string,
+    body: string | object,
+    params?: RequestParams
+  ): RefinedResponse<ResponseType> {
     return this.executeWithRetry('PUT', url, body, params);
   }
 
@@ -238,7 +247,11 @@ export class HttpClient {
    * @param params - Request parameters (optional)
    * @returns HTTP response
    */
-  public patch(url: string, body: string | object, params?: RequestParams): RefinedResponse<ResponseType> {
+  public patch(
+    url: string,
+    body: string | object,
+    params?: RequestParams
+  ): RefinedResponse<ResponseType> {
     return this.executeWithRetry('PATCH', url, body, params);
   }
 
@@ -285,4 +298,3 @@ export class HttpClient {
     return this.config.baseUrl;
   }
 }
-

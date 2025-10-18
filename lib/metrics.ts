@@ -178,7 +178,14 @@ export function recordOperation(
  * @param duration - Login duration in milliseconds
  */
 export function recordLogin(isSuccess: boolean, duration: number): void {
-  recordOperation(loginSuccessCounter, loginFailureCounter, loginSuccessRate, loginDuration, isSuccess, duration);
+  recordOperation(
+    loginSuccessCounter,
+    loginFailureCounter,
+    loginSuccessRate,
+    loginDuration,
+    isSuccess,
+    duration
+  );
 }
 
 /**
@@ -303,4 +310,3 @@ export function getStrictThresholds() {
     check_success_rate: ['rate>0.98'],
   };
 }
-

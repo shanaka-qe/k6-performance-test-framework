@@ -10,7 +10,7 @@ import { Options } from 'k6/options';
 import { SharedArray } from 'k6/data';
 import { loadConfig, getEnvironment } from '../../lib/env';
 import { HttpClient } from '../../lib/httpClient';
-import { checkStatusOk, checkApiSuccess } from '../../lib/checks';
+import { checkStatusOk } from '../../lib/checks';
 import { getStressScenario, commonTags } from '../scenarios/common';
 import { executeLogin } from '../scenarios/login';
 import { thinkTime, selectRandom } from '../../lib/utils';
@@ -39,10 +39,9 @@ export const options: Options = {
   // Relaxed thresholds for stress testing (we expect some failures at peak)
   thresholds: {
     // Allow higher error rate during stress peaks
-    http_req_failed: ['rate<0.10'], // 10% error threshold
+    http_req_failed: [{ threshold: 'rate<0.10', abortOnFail: false }], // 10% error threshold
     // Relaxed response time requirements
-    'http_req_duration{expected_response:true}': ['p(95)<2000'],
-    'http_req_duration{expected_response:true}': ['p(99)<5000'],
+    'http_req_duration{expected_response:true}': ['p(95)<2000', 'p(99)<5000'],
   },
 
   // Apply tags
@@ -50,11 +49,6 @@ export const options: Options = {
     ...commonTags,
     test_type: 'stress',
     environment: config.environment,
-  },
-
-  // Don't abort on threshold failures (we want to see how far we can push)
-  thresholds: {
-    http_req_failed: [{ threshold: 'rate<0.10', abortOnFail: false }],
   },
 };
 
@@ -70,7 +64,7 @@ export function setup() {
 }
 
 // Main test function: Simplified flow focusing on high-throughput operations
-export default function (data: any) {
+export default function (_data: Record<string, unknown>) {
   const httpClient = new HttpClient(config);
 
   // Random user selection
@@ -121,7 +115,9 @@ export default function (data: any) {
   thinkTime(0.3, 0.1);
 
   // Step 4: Product details (database + cache testing)
-  const productId = `prod-${Math.floor(Math.random() * 100).toString().padStart(3, '0')}`;
+  const productId = `prod-${Math.floor(Math.random() * 100)
+    .toString()
+    .padStart(3, '0')}`;
 
   const productResponse = httpClient.get(`${config.endpoints.products}/${productId}`, {
     tags: {
@@ -134,7 +130,9 @@ export default function (data: any) {
 
   // Log performance degradation warnings
   if (productResponse.timings.duration > 3000) {
-    console.warn(`High latency detected: ${productResponse.timings.duration}ms for ${productResponse.url}`);
+    console.warn(
+      `High latency detected: ${productResponse.timings.duration}ms for ${productResponse.url}`
+    );
   }
 
   // Periodic status logging
@@ -144,7 +142,7 @@ export default function (data: any) {
 }
 
 // Teardown function
-export function teardown(data: any) {
+export function teardown(_data: Record<string, unknown>) {
   console.log('=== Stress Test Complete ===');
   console.log('Review metrics to identify:');
   console.log('1. Maximum sustainable RPS');
@@ -152,4 +150,3 @@ export function teardown(data: any) {
   console.log('3. Error rate at peak load');
   console.log('4. Resource utilization (CPU, memory, DB connections)');
 }
-

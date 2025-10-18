@@ -5,7 +5,7 @@
  */
 
 import { sleep } from 'k6';
-import { randomIntBetween, randomItem, randomString } from 'k6-jslib';
+// Note: k6-jslib functions are implemented locally to avoid external dependencies
 
 // ============================================================================
 // DATA GENERATION UTILITIES
@@ -51,8 +51,16 @@ export function generatePhoneNumber(): string {
  * @returns Random string
  */
 export function generateRandomString(length: number): string {
-  return randomString(length);
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
+
+// Alias for compatibility
+export const randomString = generateRandomString;
 
 /**
  * Generate a random integer between min and max (inclusive)
@@ -61,8 +69,11 @@ export function generateRandomString(length: number): string {
  * @returns Random integer
  */
 export function randomInt(min: number, max: number): number {
-  return randomIntBetween(min, max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+// Alias for compatibility
+export const randomIntBetween = randomInt;
 
 /**
  * Select a random item from an array
@@ -70,7 +81,7 @@ export function randomInt(min: number, max: number): number {
  * @returns Random item from array
  */
 export function selectRandom<T>(array: T[]): T {
-  return randomItem(array);
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 /**
@@ -82,7 +93,7 @@ export function selectRandom<T>(array: T[]): T {
 export function randomDate(start: Date, end: Date): Date {
   const startTime = start.getTime();
   const endTime = end.getTime();
-  const randomTime = randomIntBetween(startTime, endTime);
+  const randomTime = randomInt(startTime, endTime);
   return new Date(randomTime);
 }
 
@@ -106,7 +117,7 @@ export function randomBoolean(probability: number = 0.5): boolean {
  * @param maxSeconds - Maximum sleep duration
  */
 export function randomSleep(minSeconds: number, maxSeconds: number): void {
-  const duration = randomIntBetween(minSeconds * 1000, maxSeconds * 1000) / 1000;
+  const duration = randomInt(minSeconds * 1000, maxSeconds * 1000) / 1000;
   sleep(duration);
 }
 
@@ -193,7 +204,7 @@ export function parseCsvLine(line: string): string[] {
  * @param params - Object with query parameters
  * @returns Query string (without leading ?)
  */
-export function toQueryString(params: { [key: string]: any }): string {
+export function toQueryString(params: { [key: string]: string | number | boolean }): string {
   return Object.keys(params)
     .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
     .join('&');
@@ -274,7 +285,7 @@ export function isValidUuid(uuid: string): boolean {
  * @param value - Value to check
  * @returns True if null or undefined
  */
-export function isNullOrUndefined(value: any): boolean {
+export function isNullOrUndefined(value: unknown): boolean {
   return value === null || value === undefined;
 }
 
@@ -290,7 +301,7 @@ export function isNullOrUndefined(value: any): boolean {
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = randomIntBetween(0, i);
+    const j = randomInt(0, i);
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
@@ -319,7 +330,7 @@ export function chunkArray<T>(array: T[], size: number): T[][] {
  * @param message - Message to log
  * @param data - Additional data to log (optional)
  */
-export function logWithContext(message: string, data?: any): void {
+export function logWithContext(message: string, data?: Record<string, unknown>): void {
   const timestamp = new Date().toISOString();
   const vu = __VU;
   const iter = __ITER;
@@ -336,9 +347,8 @@ export function logWithContext(message: string, data?: any): void {
  * @param message - Error message
  * @param error - Error object or additional context
  */
-export function logError(message: string, error?: any): void {
+export function logError(message: string, error?: unknown): void {
   const timestamp = new Date().toISOString();
   const vu = __VU;
   console.error(`[${timestamp}] [VU:${vu}] ERROR: ${message}`, error || '');
 }
-

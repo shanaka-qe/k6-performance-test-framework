@@ -69,6 +69,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Fixed VUs throughout test
 - Simplest executor
 - Throughput varies with response time
@@ -95,6 +96,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Gradual load changes
 - Good for warm-up periods
 - Throughput still varies with response time
@@ -120,12 +122,14 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Fixed iteration rate
 - k6 auto-scales VUs
 - **Best for API load testing**
 - Directly models target RPS
 
 **Calculating VUs**:
+
 ```
 Required VUs = (target RPS × avg iteration time) + buffer
 
@@ -162,6 +166,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Progressive load increase
 - Find system limits
 - Auto-scaling VUs
@@ -185,6 +190,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Fixed total iterations
 - Shared across VUs
 - Good for data-driven tests
@@ -207,6 +213,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Each VU runs same iterations
 - Predictable total load
 - Good for smoke tests
@@ -229,6 +236,7 @@ scenarios: {
 ```
 
 **Characteristics**:
+
 - Control via k6 REST API
 - Dynamic load adjustment
 - Advanced use cases
@@ -253,7 +261,7 @@ scenarios: {
     maxVUs: 150,
     exec: 'browsingScenario',  // Function name
   },
-  
+
   // 15% of traffic: search
   searching: {
     executor: 'constant-arrival-rate',
@@ -264,7 +272,7 @@ scenarios: {
     maxVUs: 30,
     exec: 'searchScenario',
   },
-  
+
   // 5% of traffic: checkout
   checkout: {
     executor: 'constant-arrival-rate',
@@ -303,13 +311,13 @@ Simulates user reading/thinking between actions:
 import { thinkTime } from '../../lib/utils';
 
 // User reads product details (3-7 seconds)
-thinkTime(5, 0.4);  // 5 seconds ± 40% = 3-7 seconds
+thinkTime(5, 0.4); // 5 seconds ± 40% = 3-7 seconds
 
 // User adds to cart (1-3 seconds)
-thinkTime(2, 0.5);  // 2 seconds ± 50% = 1-3 seconds
+thinkTime(2, 0.5); // 2 seconds ± 50% = 1-3 seconds
 
 // User completes payment (5-15 seconds)
-thinkTime(10, 0.5);  // 10 seconds ± 50% = 5-15 seconds
+thinkTime(10, 0.5); // 10 seconds ± 50% = 5-15 seconds
 ```
 
 ### Pacing
@@ -319,14 +327,14 @@ Ensures minimum time between iterations:
 ```typescript
 import { pace, now } from '../../lib/utils';
 
-export default function() {
+export default function () {
   const iterationStart = now();
-  
+
   // Execute test steps
   doLogin();
   browseProducts();
   checkout();
-  
+
   // Ensure iteration takes at least 60 seconds
   pace(iterationStart, 60);
 }
@@ -334,12 +342,12 @@ export default function() {
 
 ### When to Use Each
 
-| Use | Think Time | Pacing |
-|-----|------------|--------|
-| **Purpose** | Simulate user behavior | Control iteration rate |
-| **Placement** | Between steps | End of iteration |
-| **Load Pattern** | Realistic user flow | Consistent throughput |
-| **Example** | User reads page | API polling |
+| Use              | Think Time             | Pacing                 |
+| ---------------- | ---------------------- | ---------------------- |
+| **Purpose**      | Simulate user behavior | Control iteration rate |
+| **Placement**    | Between steps          | End of iteration       |
+| **Load Pattern** | Realistic user flow    | Consistent throughput  |
+| **Example**      | User reads page        | API polling            |
 
 ---
 
@@ -351,11 +359,11 @@ export default function() {
 import { SharedArray } from 'k6/data';
 
 // Loaded once, shared across all VUs
-const users = new SharedArray('users', function() {
+const users = new SharedArray('users', function () {
   return JSON.parse(open('../data/users.json'));
 });
 
-export default function() {
+export default function () {
   const user = users[__VU % users.length];
   // Use user
 }
@@ -372,7 +380,7 @@ export function setup() {
   };
 }
 
-export default function(data) {
+export default function (data) {
   // Each VU gets unique data
   if (!vuData) {
     vuData = data.users[__VU - 1];
@@ -386,7 +394,7 @@ export default function(data) {
 ```typescript
 import { generateUuid, generateEmail } from '../../lib/utils';
 
-export default function() {
+export default function () {
   const newUser = {
     id: generateUuid(),
     email: generateEmail(),
@@ -403,6 +411,7 @@ export default function() {
 ### Production Traffic Analysis
 
 1. **Analyze Production Logs**
+
    ```
    - Average RPS: 100
    - Peak RPS: 300
@@ -437,29 +446,29 @@ export default function() {
 ### User Journey Modeling
 
 ```typescript
-export default function() {
+export default function () {
   // 100% users: Login
   const token = executeLogin(httpClient, config, user.username, user.password);
   thinkTime(2, 0.3);
-  
+
   // 80% users: Browse products
   if (Math.random() < 0.8) {
     browseProducts(httpClient, config);
     thinkTime(5, 0.5);
   }
-  
+
   // 50% of browsers: Search
   if (Math.random() < 0.5) {
     searchProducts(httpClient, config, 'laptop');
     thinkTime(3, 0.4);
   }
-  
+
   // 20% of users: Complete checkout
   if (Math.random() < 0.2) {
     executeCheckout(httpClient, config, cartItems);
     thinkTime(10, 0.5);
   }
-  
+
   // All users: View profile occasionally
   if (Math.random() < 0.3) {
     viewProfile(httpClient, config);
@@ -553,19 +562,19 @@ scenarios: {
 ### Real-Time Monitoring
 
 ```typescript
-export default function() {
+export default function () {
   const startTime = now();
-  
+
   // Execute test logic
   const response = httpClient.get('/api/products');
-  
+
   const elapsed = duration(startTime);
-  
+
   // Log slow requests
   if (elapsed > 2000) {
     console.warn(`Slow request: ${elapsed}ms`);
   }
-  
+
   // Periodic status
   if (__ITER % 100 === 0) {
     console.log(`VU ${__VU}: ${__ITER} iterations, last: ${elapsed}ms`);
@@ -577,4 +586,3 @@ export default function() {
 
 **Document Owner**: Performance Engineering Team  
 **Last Updated**: 2025-01-18
-

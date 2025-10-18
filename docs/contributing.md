@@ -119,6 +119,7 @@ k6 run scripts/smoke/api_smoke.ts
 #### Configuration Files
 
 All tools are pre-configured:
+
 - `.eslintrc.cjs` - Linting rules
 - `.prettierrc` - Code formatting
 - `tsconfig.json` - TypeScript configuration
@@ -131,6 +132,7 @@ All tools are pre-configured:
 ### 1. Create an Issue (Optional but Recommended)
 
 Before starting work, create an issue to discuss:
+
 - What you plan to implement
 - Why it's needed
 - How you'll approach it
@@ -161,6 +163,7 @@ git checkout -b fix/bug-description
 - `chore/` - Build/tooling changes
 
 Examples:
+
 - `feature/add-graphql-scenario`
 - `fix/token-refresh-logic`
 - `docs/update-runbook`
@@ -228,6 +231,7 @@ Closes #123"
 ```
 
 **Types**:
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `docs` - Documentation
@@ -238,6 +242,7 @@ Closes #123"
 - `chore` - Maintenance
 
 **Examples**:
+
 ```
 feat(metrics): add custom checkout duration metric
 fix(auth): handle token expiration gracefully
@@ -290,26 +295,32 @@ Include:
 
 ```markdown
 ## Description
+
 Brief description of what this PR does.
 
 ## Related Issues
+
 Closes #123
 Related to #456
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 How have you tested this?
+
 - [ ] Ran locally
 - [ ] Verified in Docker
 - [ ] Added new tests
 - [ ] Updated existing tests
 
 ## Checklist
+
 - [ ] Code follows conventions
 - [ ] Linting passes
 - [ ] Type checking passes
@@ -332,6 +343,7 @@ How have you tested this?
    - Adherence to conventions
 
 3. **Feedback**: Address review comments
+
    ```bash
    # Make requested changes
    git add .
@@ -369,7 +381,7 @@ export function setup() {
   return { config };
 }
 
-export default function(data: any) {
+export default function (data: any) {
   // Test logic
 }
 
@@ -381,6 +393,7 @@ export function teardown(data: any) {
 #### Best Practices
 
 1. **Use Realistic Scenarios**
+
    ```typescript
    // Good: Realistic user flow
    executeLogin();
@@ -388,7 +401,7 @@ export function teardown(data: any) {
    if (Math.random() < 0.2) {
      checkout();
    }
-   
+
    // Bad: Unrealistic pattern
    for (let i = 0; i < 100; i++) {
      checkout();
@@ -396,18 +409,20 @@ export function teardown(data: any) {
    ```
 
 2. **Include Think Time**
+
    ```typescript
    // Good: Simulate user behavior
    viewProduct();
-   thinkTime(5, 0.4);  // User reads
+   thinkTime(5, 0.4); // User reads
    addToCart();
-   
+
    // Bad: No think time
    viewProduct();
    addToCart();
    ```
 
 3. **Handle Errors Gracefully**
+
    ```typescript
    // Good: Check for errors
    const response = httpClient.get('/api/users');
@@ -415,7 +430,7 @@ export function teardown(data: any) {
      console.error('API call failed');
      return;
    }
-   
+
    // Bad: Assume success
    const data = response.json();
    ```
@@ -450,6 +465,7 @@ npm run docker:down
 ### When to Update Docs
 
 Update documentation when:
+
 - Adding new features
 - Changing existing behavior
 - Adding new test types
@@ -489,6 +505,7 @@ Update documentation when:
 ### Contributors
 
 All contributors are recognized in:
+
 - GitHub contributors page
 - Release notes
 - README acknowledgments
@@ -496,6 +513,7 @@ All contributors are recognized in:
 ### Hall of Fame
 
 Outstanding contributors may be:
+
 - Listed as maintainers
 - Given reviewer privileges
 - Featured in blog posts
@@ -531,12 +549,14 @@ Outstanding contributors may be:
 ### First-Time Contributors
 
 We're here to help! Don't hesitate to:
+
 - Ask questions
 - Request clarification
 - Ask for code reviews
 - Share feedback
 
 Look for issues labeled:
+
 - `good first issue`
 - `help wanted`
 - `beginner friendly`
@@ -609,4 +629,3 @@ Every contribution, no matter how small, makes a difference. Thank you for helpi
 
 **Document Owner**: Performance Engineering Team  
 **Last Updated**: 2025-01-18
-

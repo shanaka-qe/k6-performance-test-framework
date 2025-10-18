@@ -17,7 +17,12 @@ import { now, duration, generateUuid, thinkTime } from '../../lib/utils';
  * @param quantity - Quantity to add
  * @returns True if successful
  */
-export function addToCart(httpClient: HttpClient, config: Config, productId: string, quantity: number = 1): boolean {
+export function addToCart(
+  httpClient: HttpClient,
+  config: Config,
+  productId: string,
+  quantity: number = 1
+): boolean {
   // Prepare add to cart request
   const cartPayload = {
     productId: productId,
@@ -50,7 +55,11 @@ export function addToCart(httpClient: HttpClient, config: Config, productId: str
  * @param cartItems - Array of product IDs to purchase
  * @returns Order ID if successful, null otherwise
  */
-export function executeCheckout(httpClient: HttpClient, config: Config, cartItems: string[]): string | null {
+export function executeCheckout(
+  httpClient: HttpClient,
+  config: Config,
+  cartItems: string[]
+): string | null {
   // Record start time
   const startTime = now();
 
@@ -117,10 +126,9 @@ export function executeCheckout(httpClient: HttpClient, config: Config, cartItem
 
   // Extract and return order ID if successful
   if (overallSuccess) {
-    const responseBody = checkoutResponse.json() as any;
-    return responseBody.orderId;
+    const responseBody = checkoutResponse.json() as Record<string, unknown>;
+    return responseBody.orderId as string;
   }
 
   return null;
 }
-

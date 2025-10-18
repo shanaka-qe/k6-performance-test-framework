@@ -4,7 +4,7 @@
  * Used across multiple test types
  */
 
-import { Options } from 'k6/options';
+import { Scenario } from 'k6/options';
 
 /**
  * Common tags applied to all scenarios
@@ -18,7 +18,7 @@ export const commonTags = {
  * Smoke test executor configuration
  * Minimal load to verify basic functionality
  */
-export function getSmokeScenario(vus: number = 1, duration: string = '30s') {
+export function getSmokeScenario(vus: number = 1, duration: string = '30s'): Scenario {
   return {
     executor: 'constant-vus',
     vus: vus,
@@ -31,7 +31,7 @@ export function getSmokeScenario(vus: number = 1, duration: string = '30s') {
  * Load test executor configuration
  * Constant arrival rate for baseline performance testing
  */
-export function getLoadScenario(rate: number = 10, duration: string = '5m') {
+export function getLoadScenario(rate: number = 10, duration: string = '5m'): Scenario {
   return {
     executor: 'constant-arrival-rate',
     rate: rate, // requests per second
@@ -47,7 +47,7 @@ export function getLoadScenario(rate: number = 10, duration: string = '5m') {
  * Stress test executor configuration
  * Ramping arrival rate to find breaking points
  */
-export function getStressScenario() {
+export function getStressScenario(): Scenario {
   return {
     executor: 'ramping-arrival-rate',
     startRate: 10,
@@ -70,7 +70,7 @@ export function getStressScenario() {
  * Soak test executor configuration
  * Sustained load over extended period to detect memory leaks
  */
-export function getSoakScenario(rate: number = 50, duration: string = '2h') {
+export function getSoakScenario(rate: number = 50, duration: string = '2h'): Scenario {
   return {
     executor: 'constant-arrival-rate',
     rate: rate,
@@ -86,7 +86,7 @@ export function getSoakScenario(rate: number = 50, duration: string = '2h') {
  * Spike test executor configuration
  * Sudden burst of traffic to test system resilience
  */
-export function getSpikeScenario() {
+export function getSpikeScenario(): Scenario {
   return {
     executor: 'ramping-arrival-rate',
     startRate: 10,
@@ -111,10 +111,8 @@ export function getCommonThresholds() {
   return {
     // Error rate should be less than 2%
     http_req_failed: ['rate<0.02'],
-    // 95th percentile response time should be under 800ms
-    'http_req_duration{expected_response:true}': ['p(95)<800'],
-    // 99th percentile response time should be under 1500ms
-    'http_req_duration{expected_response:true}': ['p(99)<1500'],
+    // Response time thresholds
+    'http_req_duration{expected_response:true}': ['p(95)<800', 'p(99)<1500'],
     // Check success rate should be above 95%
     checks: ['rate>0.95'],
   };
@@ -127,12 +125,9 @@ export function getStrictThresholds() {
   return {
     // Error rate should be less than 1%
     http_req_failed: ['rate<0.01'],
-    // 95th percentile response time should be under 500ms
-    'http_req_duration{expected_response:true}': ['p(95)<500'],
-    // 99th percentile response time should be under 1000ms
-    'http_req_duration{expected_response:true}': ['p(99)<1000'],
+    // Response time thresholds
+    'http_req_duration{expected_response:true}': ['p(95)<500', 'p(99)<1000'],
     // Check success rate should be above 98%
     checks: ['rate>0.98'],
   };
 }
-

@@ -151,13 +151,13 @@ k6-performance-test-framework/
 
 ## 🧪 Test Types
 
-| Type | Purpose | Duration | Load Pattern | Use Case |
-|------|---------|----------|--------------|----------|
-| **Smoke** | Health check & quick validation | 1-2 min | Minimal (1-5 VUs) | PR checks, deployment validation |
-| **Load** | Baseline performance & SLA validation | 5-30 min | Constant arrival rate | Regular CI runs, SLA verification |
-| **Stress** | Find breaking points & capacity limits | 10-20 min | Ramping arrival rate | Capacity planning, bottleneck identification |
-| **Soak** | Detect memory leaks & degradation | 2-8 hours | Sustained moderate load | Pre-release validation, stability testing |
-| **Spike** | Test resilience under sudden bursts | 5-10 min | Rapid spikes | Auto-scaling validation, circuit breaker testing |
+| Type       | Purpose                                | Duration  | Load Pattern            | Use Case                                         |
+| ---------- | -------------------------------------- | --------- | ----------------------- | ------------------------------------------------ |
+| **Smoke**  | Health check & quick validation        | 1-2 min   | Minimal (1-5 VUs)       | PR checks, deployment validation                 |
+| **Load**   | Baseline performance & SLA validation  | 5-30 min  | Constant arrival rate   | Regular CI runs, SLA verification                |
+| **Stress** | Find breaking points & capacity limits | 10-20 min | Ramping arrival rate    | Capacity planning, bottleneck identification     |
+| **Soak**   | Detect memory leaks & degradation      | 2-8 hours | Sustained moderate load | Pre-release validation, stability testing        |
+| **Spike**  | Test resilience under sudden bursts    | 5-10 min  | Rapid spikes            | Auto-scaling validation, circuit breaker testing |
 
 ---
 
@@ -276,6 +276,7 @@ Thresholds are defined in test scripts and can be customized per environment. Se
 ### GitHub Actions
 
 Automatically runs performance tests on:
+
 - Pull requests (smoke tests)
 - Merges to main (load tests)
 - Scheduled runs (nightly stress/soak tests)
@@ -285,6 +286,7 @@ See [`.github/workflows/performance-tests.yml`](.github/workflows/performance-te
 ### Jenkins
 
 Parameterized pipeline supporting:
+
 - Multiple test types
 - Environment selection
 - Custom VUs and duration

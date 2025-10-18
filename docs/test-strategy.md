@@ -30,13 +30,13 @@ This document defines the performance testing strategy for our applications, inc
 
 ### Response Time SLOs
 
-| Endpoint Category | p50 | p95 | p99 | Max |
-|-------------------|-----|-----|-----|-----|
-| **Health/Status** | < 50ms | < 100ms | < 200ms | 500ms |
-| **Authentication** | < 200ms | < 500ms | < 1000ms | 2000ms |
-| **Read Operations** | < 200ms | < 500ms | < 800ms | 1500ms |
-| **Write Operations** | < 300ms | < 800ms | < 1500ms | 3000ms |
-| **Search/Query** | < 300ms | < 600ms | < 1000ms | 2000ms |
+| Endpoint Category      | p50     | p95      | p99      | Max    |
+| ---------------------- | ------- | -------- | -------- | ------ |
+| **Health/Status**      | < 50ms  | < 100ms  | < 200ms  | 500ms  |
+| **Authentication**     | < 200ms | < 500ms  | < 1000ms | 2000ms |
+| **Read Operations**    | < 200ms | < 500ms  | < 800ms  | 1500ms |
+| **Write Operations**   | < 300ms | < 800ms  | < 1500ms | 3000ms |
+| **Search/Query**       | < 300ms | < 600ms  | < 1000ms | 2000ms |
 | **Complex Operations** | < 500ms | < 1200ms | < 2000ms | 5000ms |
 
 ### Availability & Reliability SLOs
@@ -47,12 +47,12 @@ This document defines the performance testing strategy for our applications, inc
 
 ### Throughput SLOs
 
-| Environment | Expected Peak RPS | Target Peak RPS |
-|-------------|-------------------|-----------------|
-| **Dev** | 10 RPS | 20 RPS |
-| **SIT** | 50 RPS | 100 RPS |
-| **UAT** | 100 RPS | 200 RPS |
-| **Production** | 500 RPS | 1000 RPS |
+| Environment    | Expected Peak RPS | Target Peak RPS |
+| -------------- | ----------------- | --------------- |
+| **Dev**        | 10 RPS            | 20 RPS          |
+| **SIT**        | 50 RPS            | 100 RPS         |
+| **UAT**        | 100 RPS           | 200 RPS         |
+| **Production** | 500 RPS           | 1000 RPS        |
 
 ---
 
@@ -63,11 +63,13 @@ This document defines the performance testing strategy for our applications, inc
 **Purpose**: Quick validation that system is functional
 
 **Schedule**:
+
 - Every PR (automated)
 - Pre-deployment check
 - Post-deployment verification
 
 **Characteristics**:
+
 - Duration: 1-2 minutes
 - Load: 1-5 VUs
 - Scope: Critical user paths only
@@ -77,11 +79,13 @@ This document defines the performance testing strategy for our applications, inc
 **Purpose**: Validate baseline performance under expected load
 
 **Schedule**:
+
 - Nightly (automated)
 - On merge to main branch
 - Before major releases
 
 **Characteristics**:
+
 - Duration: 10-30 minutes
 - Load: Expected production RPS
 - Scope: All major user journeys
@@ -91,11 +95,13 @@ This document defines the performance testing strategy for our applications, inc
 **Purpose**: Find system breaking points and maximum capacity
 
 **Schedule**:
+
 - Weekly (automated)
 - Before capacity planning reviews
 - After infrastructure changes
 
 **Characteristics**:
+
 - Duration: 15-30 minutes
 - Load: Progressive increase to breaking point
 - Scope: Resource-intensive endpoints
@@ -105,11 +111,13 @@ This document defines the performance testing strategy for our applications, inc
 **Purpose**: Detect memory leaks and performance degradation
 
 **Schedule**:
+
 - Before major releases
 - Monthly on production-like environment
 - After memory-related fixes
 
 **Characteristics**:
+
 - Duration: 2-8 hours
 - Load: Moderate sustained load (50-70% capacity)
 - Scope: Complete user journeys
@@ -119,11 +127,13 @@ This document defines the performance testing strategy for our applications, inc
 **Purpose**: Validate resilience under sudden traffic bursts
 
 **Schedule**:
+
 - Before high-traffic events
 - After auto-scaling configuration changes
 - Quarterly validation
 
 **Characteristics**:
+
 - Duration: 10-15 minutes
 - Load: Sudden bursts to 3-5x normal load
 - Scope: Critical endpoints
@@ -167,6 +177,7 @@ This document defines the performance testing strategy for our applications, inc
 ### In Scope
 
 #### Critical User Journeys
+
 1. **Authentication Flow**
    - User login
    - Token refresh
@@ -405,4 +416,3 @@ This document defines the performance testing strategy for our applications, inc
 **Document Owner**: Performance Engineering Team  
 **Last Updated**: 2025-01-18  
 **Next Review**: 2025-04-18
-

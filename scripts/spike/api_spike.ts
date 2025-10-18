@@ -17,7 +17,7 @@ import { thinkTime, selectRandom } from '../../lib/utils';
 // Load environment configuration
 const config = loadConfig(getEnvironment());
 
-// Test data
+// Test data - using SharedArray for better performance
 const testUsers = new SharedArray('users', function () {
   return [
     { username: 'spike1@example.com', password: 'password123' },
@@ -36,10 +36,9 @@ export const options: Options = {
   // Relaxed thresholds - expect some failures during spike peaks
   thresholds: {
     // Allow higher error rate during spikes
-    http_req_failed: ['rate<0.15'], // 15% error threshold acceptable
+    http_req_failed: [{ threshold: 'rate<0.15', abortOnFail: false }], // 15% error threshold acceptable
     // Relaxed response times during spikes
-    'http_req_duration{expected_response:true}': ['p(95)<3000'],
-    'http_req_duration{expected_response:true}': ['p(99)<8000'],
+    'http_req_duration{expected_response:true}': ['p(95)<3000', 'p(99)<8000'],
   },
 
   // Apply tags
@@ -47,11 +46,6 @@ export const options: Options = {
     ...commonTags,
     test_type: 'spike',
     environment: config.environment,
-  },
-
-  // Disable aborting on threshold failures
-  thresholds: {
-    http_req_failed: [{ threshold: 'rate<0.15', abortOnFail: false }],
   },
 };
 
@@ -72,7 +66,7 @@ export function setup() {
 }
 
 // Main test function: Simplified high-speed operations
-export default function (data: any) {
+export default function (_data: Record<string, unknown>) {
   const httpClient = new HttpClient(config);
 
   // Very minimal think time for spike testing
@@ -141,7 +135,7 @@ export default function (data: any) {
 }
 
 // Teardown function
-export function teardown(data: any) {
+export function teardown(_data: Record<string, unknown>) {
   console.log('=== Spike Test Complete ===');
   console.log('Review metrics for:');
   console.log('1. Error rate during spike peaks');
@@ -151,4 +145,3 @@ export function teardown(data: any) {
   console.log('5. Circuit breaker behavior');
   console.log('6. Maximum handled RPS');
 }
-

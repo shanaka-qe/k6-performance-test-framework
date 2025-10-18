@@ -36,7 +36,16 @@ const testUsers = new SharedArray('users', function () {
 
 // Sample product IDs for testing
 const productIds = new SharedArray('products', function () {
-  return ['prod-001', 'prod-002', 'prod-003', 'prod-004', 'prod-005', 'prod-006', 'prod-007', 'prod-008'];
+  return [
+    'prod-001',
+    'prod-002',
+    'prod-003',
+    'prod-004',
+    'prod-005',
+    'prod-006',
+    'prod-007',
+    'prod-008',
+  ];
 });
 
 // Test options configuration
@@ -73,7 +82,7 @@ export function setup() {
 }
 
 // Main test function: Represents a complete user journey
-export default function (data: any) {
+export default function (_data: Record<string, unknown>) {
   // Create HTTP client for this VU
   const httpClient = new HttpClient(config);
 
@@ -96,7 +105,7 @@ export default function (data: any) {
   // ========================================================================
   // STEP 2: Browse Products
   // ========================================================================
-  const browseStartTime = now();
+  // const browseStartTime = now(); // Unused for now
 
   const productsResponse = httpClient.get(config.endpoints.products, {
     tags: {
@@ -198,8 +207,7 @@ export default function (data: any) {
 }
 
 // Teardown function: Runs once after all VUs complete
-export function teardown(data: any) {
+export function teardown(_data: Record<string, unknown>) {
   console.log('=== Load Test Complete ===');
   console.log('Check results and metrics in output');
 }
-

@@ -33,6 +33,7 @@ scripts/
 Format: `api_<flow>_<type>.ts`
 
 Examples:
+
 - `api_mainflow_load.ts`
 - `api_checkout_stress.ts`
 - `api_auth_smoke.ts`
@@ -42,6 +43,7 @@ Examples:
 Format: `<module-name>.ts` (camelCase)
 
 Examples:
+
 - `httpClient.ts`
 - `auth.ts`
 - `metrics.ts`
@@ -51,6 +53,7 @@ Examples:
 Format: `<scenario-name>.ts` (camelCase)
 
 Examples:
+
 - `login.ts`
 - `checkout.ts`
 - `common.ts`
@@ -127,45 +130,45 @@ const MAX_RETRIES = 3;
 const DEFAULT_TIMEOUT = 30000;
 
 // Descriptive names
-const userCredentials = loadUserData();  // Good
-const data = loadUserData();             // Avoid
+const userCredentials = loadUserData(); // Good
+const data = loadUserData(); // Avoid
 ```
 
 ### Functions
 
 ```typescript
 // Verb + Noun pattern for functions
-function executeLogin() { }
-function fetchUserProfile() { }
-function checkApiResponse() { }
+function executeLogin() {}
+function fetchUserProfile() {}
+function checkApiResponse() {}
 
 // Boolean functions should start with is/has/should
-function isValidToken() { }
-function hasExpired() { }
-function shouldRetry() { }
+function isValidToken() {}
+function hasExpired() {}
+function shouldRetry() {}
 
 // Avoid generic names
-function process() { }     // Bad
-function validate() { }    // Bad
-function processOrder() { } // Good
-function validateEmail() { } // Good
+function process() {} // Bad
+function validate() {} // Bad
+function processOrder() {} // Good
+function validateEmail() {} // Good
 ```
 
 ### Classes
 
 ```typescript
 // PascalCase for classes
-class HttpClient { }
-class AuthManager { }
-class MetricsCollector { }
+class HttpClient {}
+class AuthManager {}
+class MetricsCollector {}
 ```
 
 ### Interfaces & Types
 
 ```typescript
 // PascalCase with descriptive names
-interface RequestParams { }
-interface TokenResponse { }
+interface RequestParams {}
+interface TokenResponse {}
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 ```
 
@@ -227,19 +230,19 @@ export function teardown(data: any) {
 export default function (data: any) {
   // 1. Setup
   const httpClient = new HttpClient(config);
-  
+
   // 2. Execute steps (clearly commented)
   // Step 1: Login
   const token = executeLogin(httpClient, config, user.username, user.password);
   thinkTime(2, 0.3);
-  
+
   // Step 2: Browse products
   const products = browseProducts(httpClient, config);
   thinkTime(3, 0.5);
-  
+
   // Step 3: Checkout
   const orderId = executeCheckout(httpClient, config, cartItems);
-  
+
   // 3. Cleanup (if needed)
 }
 ```
@@ -349,8 +352,8 @@ check(response, {
 
 // Avoid generic names
 check(response, {
-  'success': (r) => r.status === 200,  // Too vague
-  'valid': (r) => r.json('user') !== undefined,  // Too vague
+  success: (r) => r.status === 200, // Too vague
+  valid: (r) => r.json('user') !== undefined, // Too vague
 });
 ```
 
@@ -455,10 +458,10 @@ npm run lint:fix
 thresholds: {
   // Error rate should be less than 2%
   http_req_failed: ['rate<0.02'],
-  
+
   // 95th percentile response time should be under 800ms
   'http_req_duration{expected_response:true}': ['p(95)<800'],
-  
+
   // Custom metric thresholds
   login_success_rate: ['rate>0.95'],  // 95% of logins should succeed
   checkout_duration: ['p(95)<3000'],  // Checkout p95 < 3 seconds
@@ -520,19 +523,19 @@ const clientSecret = __ENV.CLIENT_SECRET;
 
 ```typescript
 // Load test data once, share across VUs
-const users = new SharedArray('users', function() {
+const users = new SharedArray('users', function () {
   return JSON.parse(open('../data/users.json'));
 });
 
 // Avoid expensive operations in VU code
 // Bad: Parsing large files in every iteration
-export default function() {
-  const data = JSON.parse(open('../data/large_file.json'));  // ❌
+export default function () {
+  const data = JSON.parse(open('../data/large_file.json')); // ❌
 }
 
 // Good: Parse once in setup or use SharedArray
 const data = new SharedArray('data', () => {
-  return JSON.parse(open('../data/large_file.json'));  // ✅
+  return JSON.parse(open('../data/large_file.json')); // ✅
 });
 ```
 
@@ -540,10 +543,10 @@ const data = new SharedArray('data', () => {
 
 ```typescript
 // Use realistic think time
-thinkTime(3, 0.5);  // 3 seconds ± 50%
+thinkTime(3, 0.5); // 3 seconds ± 50%
 
 // Don't use fixed sleep
-sleep(3);  // Less realistic
+sleep(3); // Less realistic
 
 // Model realistic user behavior
 // After viewing product: 3-7 seconds
@@ -633,4 +636,3 @@ Added section on custom image building.
 
 **Document Owner**: Performance Engineering Team  
 **Last Updated**: 2025-01-18
-

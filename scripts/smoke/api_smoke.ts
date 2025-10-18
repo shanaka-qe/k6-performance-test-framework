@@ -9,7 +9,7 @@
 import { Options } from 'k6/options';
 import { loadConfig, getEnvironment } from '../../lib/env';
 import { HttpClient } from '../../lib/httpClient';
-import { checkStatusOk, checkJsonFields } from '../../lib/checks';
+import { checkStatusOk } from '../../lib/checks';
 import { getSmokeScenario, getCommonThresholds, commonTags } from '../scenarios/common';
 import { thinkTime } from '../../lib/utils';
 
@@ -49,7 +49,7 @@ export function setup() {
 }
 
 // Main test function: Runs for each iteration
-export default function (data: any) {
+export default function (_data: Record<string, unknown>) {
   // Create HTTP client with loaded configuration
   const httpClient = new HttpClient(config);
 
@@ -115,7 +115,6 @@ export default function (data: any) {
 }
 
 // Teardown function: Runs once after all iterations complete
-export function teardown(data: any) {
+export function teardown(_data: Record<string, unknown>) {
   console.log('=== Smoke Test Complete ===');
 }
-

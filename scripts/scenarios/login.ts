@@ -17,7 +17,12 @@ import { now, duration } from '../../lib/utils';
  * @param password - Password for login
  * @returns Login token or null if failed
  */
-export function executeLogin(httpClient: HttpClient, config: Config, username: string, password: string): string | null {
+export function executeLogin(
+  httpClient: HttpClient,
+  config: Config,
+  username: string,
+  password: string
+): string | null {
   // Record start time for performance tracking
   const startTime = now();
 
@@ -46,10 +51,10 @@ export function executeLogin(httpClient: HttpClient, config: Config, username: s
 
   // Extract and return token if login succeeded
   if (success && response.status === 200) {
-    const responseBody = response.json() as any;
+    const responseBody = response.json() as Record<string, unknown>;
     const token = responseBody.token || responseBody.access_token;
 
-    if (token) {
+    if (token && typeof token === 'string') {
       // Store token in HTTP client for subsequent requests
       httpClient.setAuthToken(token);
       return token;
@@ -60,4 +65,3 @@ export function executeLogin(httpClient: HttpClient, config: Config, username: s
   console.error(`Login failed for user ${username}: Status ${response.status}`);
   return null;
 }
-

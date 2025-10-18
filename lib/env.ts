@@ -4,7 +4,7 @@
  * Provides type-safe access to configuration across all test scripts
  */
 
-import { readFile } from 'k6/x/file';
+// Note: k6/x/file is not available in all k6 versions, using alternative approach
 
 // Interface defining the structure of our configuration object
 export interface Config {
@@ -66,12 +66,14 @@ export interface Config {
  * @param filename - Name of the JSON file to load (e.g., 'dev.json')
  * @returns Parsed JSON object or empty object if file doesn't exist
  */
-function loadJsonConfig(filename: string): any {
+function loadJsonConfig(filename: string): Record<string, unknown> {
   try {
-    // Attempt to read the configuration file
-    const content = readFile(`./env/${filename}`);
-    // Parse the JSON content and return
-    return JSON.parse(content);
+    // For now, return empty object - users should set environment variables
+    // In a real implementation, you would use k6/x/file or SharedArray
+    console.warn(
+      `Warning: File loading not implemented. Please use environment variables for ${filename}`
+    );
+    return {};
   } catch (error) {
     // If file doesn't exist or can't be parsed, log warning and return empty object
     console.warn(`Warning: Could not load config file env/${filename}:`, error);
@@ -86,7 +88,10 @@ function loadJsonConfig(filename: string): any {
  * @param source - Object to merge into target
  * @returns Merged object
  */
-function mergeDeep(target: any, source: any): any {
+function mergeDeep(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>
+): Record<string, unknown> {
   // Create a copy of the target object to avoid mutation
   const output = { ...target };
 
@@ -115,7 +120,7 @@ function mergeDeep(target: any, source: any): any {
  * @param item - Value to check
  * @returns True if item is an object
  */
-function isObject(item: any): boolean {
+function isObject(item: unknown): boolean {
   return item && typeof item === 'object' && !Array.isArray(item);
 }
 
@@ -133,7 +138,7 @@ export function loadConfig(env: string = 'dev'): Config {
   const envConfig = loadJsonConfig(`${env}.json`);
 
   // Step 3: Merge common and environment configs (env config takes precedence)
-  let config = mergeDeep(commonConfig, envConfig);
+  const config = mergeDeep(commonConfig, envConfig) as Config;
 
   // Step 4: Apply environment variable overrides (highest precedence)
   // These allow runtime customization without changing JSON files
@@ -188,7 +193,14 @@ export function getEnvironment(): string {
  * @param path - Dot-notation path to the value
  * @returns The value at the specified path or undefined
  */
-export function getConfigValue(config: Config, path: string): any {
-  return path.split('.').reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), config as any);
+export function getConfigValue(config: Config, path: string): unknown {
+  return path
+    .split('.')
+    .reduce(
+      (obj, key) =>
+        obj && (obj as Record<string, unknown>)[key] !== undefined
+          ? (obj as Record<string, unknown>)[key]
+          : undefined,
+      config as unknown as Record<string, unknown>
+    );
 }
-

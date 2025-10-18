@@ -58,7 +58,7 @@ export class AuthManager {
     const tokenUrl = `${this.config.auth.authUrl}${this.config.auth.tokenEndpoint}`;
 
     // Prepare the request body based on grant type
-    const requestBody: any = {
+    const requestBody: Record<string, string> = {
       grant_type: credentials.grantType,
       client_id: credentials.clientId,
     };
@@ -103,7 +103,7 @@ export class AuthManager {
     }
 
     // Parse the token response
-    const tokenData = response.json() as TokenResponse;
+    const tokenData = response.json() as unknown as TokenResponse;
 
     // Cache the token and expiration time
     this.accessToken = tokenData.access_token;
@@ -175,7 +175,7 @@ export class AuthManager {
     }
 
     // Parse and cache the new token
-    const tokenData = response.json() as TokenResponse;
+    const tokenData = response.json() as unknown as TokenResponse;
     this.accessToken = tokenData.access_token;
     if (tokenData.refresh_token) {
       this.refreshToken = tokenData.refresh_token;
@@ -220,7 +220,10 @@ export class AuthManager {
    * @returns True if token is available and not expired
    */
   public hasValidToken(): boolean {
-    return this.accessToken !== null && (this.tokenExpiresAt === null || Date.now() < this.tokenExpiresAt);
+    return (
+      this.accessToken !== null &&
+      (this.tokenExpiresAt === null || Date.now() < this.tokenExpiresAt)
+    );
   }
 
   /**
@@ -249,7 +252,7 @@ export class AuthManager {
  * @param jsonPath - Dot-notation path to the value (e.g., 'data.user.id')
  * @returns Extracted value or null if not found
  */
-export function extractValue(responseBody: any, jsonPath: string): any {
+export function extractValue(responseBody: unknown, jsonPath: string): unknown {
   // If response is a string, try to parse it as JSON
   let data = responseBody;
   if (typeof responseBody === 'string') {
@@ -266,8 +269,8 @@ export function extractValue(responseBody: any, jsonPath: string): any {
   let value = data;
 
   for (const key of keys) {
-    if (value && typeof value === 'object' && key in value) {
-      value = value[key];
+    if (value && typeof value === 'object' && key in (value as Record<string, unknown>)) {
+      value = (value as Record<string, unknown>)[key];
     } else {
       return null;
     }
@@ -280,14 +283,14 @@ export function extractValue(responseBody: any, jsonPath: string): any {
  * Correlation helper: Store a value in VU-local storage
  * Each virtual user maintains its own correlation storage
  */
-const correlationStore: Map<string, any> = new Map();
+const correlationStore: Map<string, unknown> = new Map();
 
 /**
  * Store a correlated value for later use in the VU's session
  * @param key - Correlation key
  * @param value - Value to store
  */
-export function storeCorrelation(key: string, value: any): void {
+export function storeCorrelation(key: string, value: unknown): void {
   correlationStore.set(key, value);
 }
 
@@ -296,7 +299,7 @@ export function storeCorrelation(key: string, value: any): void {
  * @param key - Correlation key
  * @returns Stored value or null if not found
  */
-export function getCorrelation(key: string): any {
+export function getCorrelation(key: string): unknown {
   return correlationStore.get(key) || null;
 }
 
@@ -306,4 +309,3 @@ export function getCorrelation(key: string): any {
 export function clearCorrelations(): void {
   correlationStore.clear();
 }
-

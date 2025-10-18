@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    // Target ES2015+ for k6 compatibility (k6 supports modern JS features)
-    "target": "ES2015",
+    // Target ES2017+ for k6 compatibility (k6 supports modern JS features)
+    "target": "ES2017",
     // Use ESNext modules for ES6 import/export syntax
     "module": "ESNext",
     // Enable all strict type-checking options for maximum type safety
@@ -35,8 +35,7 @@
     }
   },
   // Include all TypeScript files in the project
-  "include": ["**/*.ts", "**/*.js"],
+  "include": ["lib/**/*.ts", "scripts/**/*.ts", "*.ts"],
   // Exclude node_modules and output directories
-  "exclude": ["node_modules", "results", "reports"]
+  "exclude": ["node_modules", "results", "reports", "tools"]
 }
-

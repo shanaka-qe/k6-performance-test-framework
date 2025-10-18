@@ -381,6 +381,7 @@ open http://localhost:9090
 **Symptom**: `dial tcp: connection refused`
 
 **Solution**:
+
 ```bash
 # Check if service is running
 curl http://api-dev.example.com/health
@@ -397,6 +398,7 @@ ping api-dev.example.com
 **Symptom**: `401 Unauthorized` errors
 
 **Solution**:
+
 ```bash
 # Verify credentials are set
 echo $CLIENT_ID
@@ -415,6 +417,7 @@ k6 run --env DEBUG=true scripts/smoke/api_smoke.ts
 **Symptom**: Error rate > 2%
 
 **Investigation**:
+
 ```bash
 # Check detailed errors
 k6 run --http-debug scripts/load/api_load_mainflow.ts 2>&1 | grep "error"
@@ -434,6 +437,7 @@ k6 run --env VUS=5 --env DURATION=2m scripts/load/api_load_mainflow.ts
 **Symptom**: p95 > 1500ms
 
 **Investigation**:
+
 ```bash
 # Check infrastructure metrics
 # - CPU utilization
@@ -452,6 +456,7 @@ k6 run --iterations 10 --vus 1 scripts/smoke/api_smoke.ts
 **Symptom**: `thresholds on metrics 'http_req_duration' have been crossed`
 
 **Solution**:
+
 ```bash
 # Review threshold configuration
 grep "thresholds" scripts/load/api_load_mainflow.ts
@@ -603,4 +608,3 @@ k6 run --env ENV=sit --env VUS=50 scripts/load/api_load_mainflow.ts
 
 **Document Owner**: Performance Engineering Team  
 **Last Updated**: 2025-01-18
-
