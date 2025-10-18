@@ -204,7 +204,9 @@ k6-performance-test-framework/
 │
 ├── tools/                        # 🐳 Docker & Observability
 │   ├── Dockerfile                # k6 runner image
-│   ├── docker-compose.yml        # Full stack (k6 + Prometheus + Grafana)
+│   ├── docker/
+│   │   ├── docker-compose.yml    # Full stack (k6 + Prometheus + Grafana)
+│   │   └── Dockerfile            # k6 test execution container
 │   ├── prometheus/               # Prometheus configuration
 │   └── grafana/                  # Grafana dashboards & provisioning
 │
@@ -296,16 +298,16 @@ k6 run --out cloud scripts/load/api_load_mainflow.ts
 
 ```bash
 # Start full observability stack
-docker-compose -f tools/docker-compose.yml up -d
+docker-compose -f docker/docker-compose.yml up -d
 
 # Run test in Docker
-docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
+docker-compose -f docker/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
 
 # With environment override
-docker-compose -f tools/docker-compose.yml run --rm -e ENV=sit k6 run /scripts/load/api_load_mainflow.ts
+docker-compose -f docker/docker-compose.yml run --rm -e ENV=sit k6 run /scripts/load/api_load_mainflow.ts
 
 # Stop stack
-docker-compose -f tools/docker-compose.yml down
+docker-compose -f docker/docker-compose.yml down
 ```
 
 ---

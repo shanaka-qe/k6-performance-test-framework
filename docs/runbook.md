@@ -139,28 +139,28 @@ k6 run \
 
 ```bash
 # Start Prometheus + Grafana
-docker-compose -f tools/docker-compose.yml up -d
+docker-compose -f docker/docker-compose.yml up -d
 
 # Verify services are running
-docker-compose -f tools/docker-compose.yml ps
+docker-compose -f docker/docker-compose.yml ps
 
 # View logs
-docker-compose -f tools/docker-compose.yml logs -f
+docker-compose -f docker/docker-compose.yml logs -f
 ```
 
 ### Run Tests in Docker
 
 ```bash
 # Run test with docker-compose
-docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/smoke/api_smoke.ts
+docker-compose -f docker/docker-compose.yml run --rm k6 run /scripts/smoke/api_smoke.ts
 
 # With environment override
-docker-compose -f tools/docker-compose.yml run --rm \
+docker-compose -f docker/docker-compose.yml run --rm \
   -e ENV=sit \
   k6 run /scripts/load/api_load_mainflow.ts
 
 # Mount local changes
-docker-compose -f tools/docker-compose.yml run --rm \
+docker-compose -f docker/docker-compose.yml run --rm \
   -v $(pwd)/scripts:/scripts \
   k6 run /scripts/load/api_load_mainflow.ts
 ```
@@ -182,10 +182,10 @@ docker run --rm \
 
 ```bash
 # Stop services
-docker-compose -f tools/docker-compose.yml down
+docker-compose -f docker/docker-compose.yml down
 
 # Stop and remove volumes
-docker-compose -f tools/docker-compose.yml down -v
+docker-compose -f docker/docker-compose.yml down -v
 ```
 
 ---
@@ -567,7 +567,7 @@ rm -rf results/*.json
 rm -rf reports/*.html
 
 # Clean Docker volumes
-docker-compose -f tools/docker-compose.yml down -v
+docker-compose -f docker/docker-compose.yml down -v
 
 # Reset test environment
 # (Run environment-specific cleanup scripts)
@@ -584,13 +584,13 @@ docker-compose -f tools/docker-compose.yml down -v
 k6 run scripts/smoke/api_smoke.ts
 
 # Docker stack up
-docker-compose -f tools/docker-compose.yml up -d
+docker-compose -f docker/docker-compose.yml up -d
 
 # View Grafana
 open http://localhost:3000
 
 # Stop Docker stack
-docker-compose -f tools/docker-compose.yml down
+docker-compose -f docker/docker-compose.yml down
 
 # Run with overrides
 k6 run --env ENV=sit --env VUS=50 scripts/load/api_load_mainflow.ts

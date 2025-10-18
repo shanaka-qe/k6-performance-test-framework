@@ -157,7 +157,7 @@ npm run docker:up
 
 # Wait for services to be ready (30-60 seconds)
 # Check status
-docker-compose -f tools/docker-compose.yml ps
+docker-compose -f docker/docker-compose.yml ps
 
 # Run a test in Docker
 npm run docker:test
@@ -170,13 +170,13 @@ open http://localhost:3000  # admin/admin
 
 ```bash
 # Start everything
-docker-compose -f tools/docker-compose.yml up -d
+docker-compose -f docker/docker-compose.yml up -d
 
 # Run a specific test
-docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
+docker-compose -f docker/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
 
 # Stop when done
-docker-compose -f tools/docker-compose.yml down
+docker-compose -f docker/docker-compose.yml down
 ```
 
 ---

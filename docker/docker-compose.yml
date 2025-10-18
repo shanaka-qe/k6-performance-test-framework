@@ -133,13 +133,13 @@ volumes:
 # ===========================================================================
 # 
 # Start the stack:
-#   docker-compose -f tools/docker-compose.yml up -d
+#   docker-compose -f docker/docker-compose.yml up -d
 #
 # Run a specific test:
-#   docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
+#   docker-compose -f docker/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
 #
 # Run with environment override:
-#   docker-compose -f tools/docker-compose.yml run --rm -e ENV=sit k6 run /scripts/load/api_load_mainflow.ts
+#   docker-compose -f docker/docker-compose.yml run --rm -e ENV=sit k6 run /scripts/load/api_load_mainflow.ts
 #
 # View Prometheus metrics:
 #   Open http://localhost:9090
@@ -148,10 +148,10 @@ volumes:
 #   Open http://localhost:3000 (admin/admin)
 #
 # Stop the stack:
-#   docker-compose -f tools/docker-compose.yml down
+#   docker-compose -f docker/docker-compose.yml down
 #
 # Stop and remove volumes:
-#   docker-compose -f tools/docker-compose.yml down -v
+#   docker-compose -f docker/docker-compose.yml down -v
 #
 # ===========================================================================
 
