@@ -1,6 +1,6 @@
 # 🚀 k6 Performance Testing Framework
 
-[![Performance Tests](https://github.com/your-org/k6-performance-test-framework/workflows/Performance%20Tests/badge.svg)](https://github.com/your-org/k6-performance-test-framework/actions)
+[![Performance Tests](https://github.com/your-org/k6-performance-test-framework/workflows/Performance%20Tests/badge.svg)]
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **Enterprise-grade, code-first k6 performance testing framework** for API, microservices, and web applications. Built for senior performance engineers who value modularity, type safety, and CI/CD integration.
