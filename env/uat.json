@@ -1,0 +1,41 @@
+{
+  "description": "User Acceptance Test environment configuration",
+  "environment": "uat",
+  "baseUrl": "https://api-uat.example.com",
+  "auth": {
+    "clientId": "uat-client-id",
+    "authUrl": "https://auth-uat.example.com"
+  },
+  "load": {
+    "vus": 50,
+    "duration": "30m",
+    "rps": 100
+  },
+  "data": {
+    "usersFile": "data/users_uat.csv",
+    "payloadsPath": "data/payloads"
+  },
+  "features": {
+    "detailedLogging": false,
+    "debugMode": false
+  },
+  "endpoints": {
+    "health": "/health",
+    "login": "/api/v1/auth/login",
+    "users": "/api/v1/users",
+    "products": "/api/v1/products",
+    "orders": "/api/v1/orders",
+    "search": "/api/v1/search"
+  },
+  "thresholds": {
+    "http_req_failed": {
+      "threshold": "rate<0.01",
+      "abortOnFail": true
+    },
+    "http_req_duration": {
+      "p95": 500,
+      "p99": 1000
+    }
+  }
+}
+

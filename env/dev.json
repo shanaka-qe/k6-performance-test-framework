@@ -1,0 +1,31 @@
+{
+  "description": "Development environment configuration",
+  "environment": "dev",
+  "baseUrl": "https://api-dev.example.com",
+  "auth": {
+    "clientId": "dev-client-id",
+    "authUrl": "https://auth-dev.example.com"
+  },
+  "load": {
+    "vus": 5,
+    "duration": "2m",
+    "rps": 10
+  },
+  "data": {
+    "usersFile": "data/users_dev.csv",
+    "payloadsPath": "data/payloads"
+  },
+  "features": {
+    "detailedLogging": true,
+    "debugMode": true
+  },
+  "endpoints": {
+    "health": "/health",
+    "login": "/api/v1/auth/login",
+    "users": "/api/v1/users",
+    "products": "/api/v1/products",
+    "orders": "/api/v1/orders",
+    "search": "/api/v1/search"
+  }
+}
+

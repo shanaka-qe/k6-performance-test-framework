@@ -1,0 +1,31 @@
+{
+  "description": "System Integration Test environment configuration",
+  "environment": "sit",
+  "baseUrl": "https://api-sit.example.com",
+  "auth": {
+    "clientId": "sit-client-id",
+    "authUrl": "https://auth-sit.example.com"
+  },
+  "load": {
+    "vus": 20,
+    "duration": "10m",
+    "rps": 50
+  },
+  "data": {
+    "usersFile": "data/users_sit.csv",
+    "payloadsPath": "data/payloads"
+  },
+  "features": {
+    "detailedLogging": false,
+    "debugMode": false
+  },
+  "endpoints": {
+    "health": "/health",
+    "login": "/api/v1/auth/login",
+    "users": "/api/v1/users",
+    "products": "/api/v1/products",
+    "orders": "/api/v1/orders",
+    "search": "/api/v1/search"
+  }
+}
+

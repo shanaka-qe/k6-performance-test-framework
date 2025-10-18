@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    // Target ES2015+ for k6 compatibility (k6 supports modern JS features)
+    "target": "ES2015",
+    // Use ESNext modules for ES6 import/export syntax
+    "module": "ESNext",
+    // Enable all strict type-checking options for maximum type safety
+    "strict": true,
+    // Allow importing .js files from .ts files
+    "allowJs": true,
+    // Skip type checking of declaration files for faster builds
+    "skipLibCheck": true,
+    // Force consistent casing in file names
+    "forceConsistentCasingInFileNames": true,
+    // Enable interoperability between CommonJS and ES Modules
+    "esModuleInterop": true,
+    // Specify module resolution strategy
+    "moduleResolution": "node",
+    // Allow importing JSON modules
+    "resolveJsonModule": true,
+    // Do not emit compiled files (k6 handles .ts directly with webpack)
+    "noEmit": true,
+    // Enable importing modules with .json extension
+    "allowSyntheticDefaultImports": true,
+    // Include type definitions for k6
+    "types": ["k6"],
+    // Base directory for resolving non-relative module names
+    "baseUrl": ".",
+    // Path mapping for clean imports
+    "paths": {
+      "@lib/*": ["lib/*"],
+      "@scripts/*": ["scripts/*"],
+      "@data/*": ["data/*"],
+      "@env/*": ["env/*"]
+    }
+  },
+  // Include all TypeScript files in the project
+  "include": ["**/*.ts", "**/*.js"],
+  // Exclude node_modules and output directories
+  "exclude": ["node_modules", "results", "reports"]
+}
+

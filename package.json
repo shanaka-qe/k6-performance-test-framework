@@ -1,0 +1,51 @@
+{
+  "name": "k6-performance-test-framework",
+  "version": "1.0.0",
+  "description": "Enterprise-grade k6 Performance Testing Framework - Code-first, modular, CI/CD-ready",
+  "type": "module",
+  "scripts": {
+    "test:smoke": "k6 run --env ENV=dev scripts/smoke/api_smoke.ts",
+    "test:load": "k6 run --env ENV=dev scripts/load/api_load_mainflow.ts",
+    "test:stress": "k6 run --env ENV=dev scripts/stress/api_stress.ts",
+    "test:soak": "k6 run --env ENV=dev scripts/soak/api_soak.ts",
+    "test:spike": "k6 run --env ENV=dev scripts/spike/api_spike.ts",
+    "test:smoke:ci": "k6 run --out json=results/smoke-results.json --env ENV=sit scripts/smoke/api_smoke.ts",
+    "test:load:ci": "k6 run --out json=results/load-results.json --env ENV=sit scripts/load/api_load_mainflow.ts",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "type-check": "tsc --noEmit",
+    "docker:up": "docker-compose -f tools/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f tools/docker-compose.yml down",
+    "docker:test": "docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/smoke/api_smoke.ts"
+  },
+  "keywords": [
+    "k6",
+    "performance-testing",
+    "load-testing",
+    "stress-testing",
+    "api-testing",
+    "typescript",
+    "ci-cd",
+    "observability",
+    "grafana",
+    "prometheus"
+  ],
+  "author": "SNK Media Pty Ltd",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/k6": "^0.52.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
