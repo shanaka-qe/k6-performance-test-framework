@@ -14,6 +14,83 @@
 
 This production-ready framework was originally built for a client engagement and has been battle-tested in real-world performance programs. I'm now sharing it with the community so other teams can adopt, extend, and tailor it for their own k6 workloads.
 
+## 🏗️ Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           k6 Performance Testing Framework                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐            │
+│  │   Test Scripts  │    │   Core Library  │    │   Scenarios     │            │
+│  │                 │    │                 │    │                 │            │
+│  │ • Smoke Tests   │    │ • HTTP Client   │    │ • Login Flow    │            │
+│  │ • Load Tests    │◄───┤ • Auth Manager  │◄───┤ • Checkout Flow │            │
+│  │ • Stress Tests  │    │ • Environment   │    │ • Common Utils  │            │
+│  │ • Soak Tests    │    │ • Metrics       │    │                 │            │
+│  │ • Spike Tests   │    │ • Checks        │    │                 │            │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘            │
+│           │                       │                       │                   │
+│           └───────────────────────┼───────────────────────┘                   │
+│                                   │                                           │
+│  ┌─────────────────────────────────┼───────────────────────────────────────┐  │
+│  │                    Configuration Layer                                  │  │
+│  │                                                                         │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │  │
+│  │  │    Dev      │  │     SIT     │  │     UAT     │  │   Common    │     │  │
+│  │  │   Config    │  │   Config    │  │   Config    │  │   Config    │     │  │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │  │
+│  │                                                                         │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐    │  │
+│  │  │              Environment Variables Override                     │    │  │
+│  │  │        (BASE_URL, CLIENT_ID, VUS, DURATION, etc.)               │    │  │
+│  │  └─────────────────────────────────────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                   │                                           │
+│  ┌────────────────────────────────┼────────────────────────────────────────┐  │
+│  │                    Execution Layer                                      │  │
+│  │                                                                         │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │  │
+│  │  │   Local     │  │     CI      │  │  Kubernetes │  │    Cloud    │     │  │
+│  │  │ Execution   │  │  Pipeline   │  │ k6-operator │  │   k6 Cloud  │     │  │
+│  │  │             │  │             │  │             │  │             │     │  │
+│  │  │ • npm run   │  │ • GitHub    │  │ • k8s YAML  │  │ • k6 Cloud  │     │  │
+│  │  │ • Docker    │  │   Actions   │  │ • Helm      │  │ • Grafana   │     │  │
+│  │  │ • Compose   │  │ • Jenkins   │  │ • Scaling   │  │   Cloud     │     │  │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                   │                                           │
+│  ┌────────────────────────────────┼────────────────────────────────────────┐  │
+│  │                    Observability Layer                                  │  │
+│  │                                                                         │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │  │
+│  │  │ Prometheus  │  │   Grafana   │  │  InfluxDB   │  │   Custom    │     │  │
+│  │  │             │  │             │  │             │  │  Metrics    │     │  │
+│  │  │ • Metrics   │  │ • Dashboards│  │ • Time      │  │ • Business  │     │  │
+│  │  │ • Alerts    │  │ • Charts    │  │   Series    │  │   Logic     │     │  │
+│  │  │ • SLOs      │  │ • Reports   │  │ • Storage   │  │   Tracking  │     │  │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                                                               │
+│  ┌─────────────────────────────────────────────────────────────────────────┐  │
+│  │                        Quality Gates                                    │  │
+│  │                                                                         │  │
+│  │  • HTTP Error Rate < 2%     • Response Time P95 < 800ms                 │  │
+│  │  • Check Success Rate > 95%  • Custom Business Logic Validation         │  │
+│  │  • Threshold Failures → Build Failure                                   │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Key Components:
+├── Test Scripts: TypeScript-based test implementations
+├── Core Library: Reusable utilities and abstractions  
+├── Scenarios: Business logic and user journey modeling
+├── Configuration: Environment-aware config management
+├── Execution: Multiple deployment and scaling options
+├── Observability: Comprehensive monitoring and alerting
+└── Quality Gates: Automated SLO validation and reporting
+```
+
 ---
 
 ## 📋 Table of Contents
