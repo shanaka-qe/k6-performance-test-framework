@@ -1,0 +1,30 @@
+{
+  "userId": "{{USER_ID}}",
+  "profile": {
+    "firstName": "{{FIRST_NAME}}",
+    "lastName": "{{LAST_NAME}}",
+    "email": "{{EMAIL}}",
+    "phone": "{{PHONE}}",
+    "dateOfBirth": "1990-01-15",
+    "preferences": {
+      "newsletter": true,
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": true
+      },
+      "language": "en",
+      "currency": "USD",
+      "theme": "dark"
+    },
+    "address": {
+      "street": "{{ADDRESS_STREET}}",
+      "city": "{{ADDRESS_CITY}}",
+      "state": "{{ADDRESS_STATE}}",
+      "zipCode": "{{ADDRESS_ZIP}}",
+      "country": "US"
+    }
+  },
+  "updatedAt": "{{TIMESTAMP}}"
+}
+

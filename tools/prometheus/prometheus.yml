@@ -1,0 +1,67 @@
+# Prometheus Configuration for k6 Performance Testing
+# Scrapes metrics from k6 tests and stores time-series data
+
+global:
+  # How frequently to scrape targets
+  scrape_interval: 15s
+  # How long until a scrape request times out
+  scrape_timeout: 10s
+  # How frequently to evaluate rules
+  evaluation_interval: 15s
+  # Labels to add to any time series or alerts
+  external_labels:
+    cluster: 'k6-performance-testing'
+    environment: 'local'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Rule files (for recording and alerting rules)
+# rule_files:
+#   - "rules/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # k6 metrics (if using k6-prometheus exporter)
+  # Note: k6 doesn't expose metrics endpoint by default
+  # This is placeholder for if you run k6 with prometheus output
+  - job_name: 'k6-tests'
+    honor_labels: true
+    static_configs:
+      - targets: []
+        labels:
+          service: 'k6'
+
+# Remote write configuration for k6
+# k6 will use the remote write endpoint to push metrics
+# Enabled via --out experimental-prometheus-rw flag in k6
+remote_write:
+  - url: http://prometheus:9090/api/v1/write
+    queue_config:
+      capacity: 10000
+      max_shards: 50
+      min_shards: 1
+      max_samples_per_send: 5000
+      batch_send_deadline: 5s
+      min_backoff: 30ms
+      max_backoff: 100ms
+
+# Storage configuration
+storage:
+  tsdb:
+    # Retention period
+    retention.time: 7d
+    # Maximum size of data blocks
+    retention.size: 10GB
+

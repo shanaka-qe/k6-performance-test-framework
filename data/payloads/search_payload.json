@@ -1,0 +1,26 @@
+{
+  "query": "{{SEARCH_QUERY}}",
+  "filters": {
+    "category": ["electronics", "computers"],
+    "priceRange": {
+      "min": 0,
+      "max": 1000
+    },
+    "brand": ["Apple", "Samsung", "Dell"],
+    "inStock": true,
+    "rating": {
+      "min": 4.0
+    }
+  },
+  "sort": {
+    "field": "price",
+    "order": "asc"
+  },
+  "pagination": {
+    "page": 1,
+    "limit": 20
+  },
+  "facets": ["category", "brand", "price"],
+  "includeAggregations": true
+}
+

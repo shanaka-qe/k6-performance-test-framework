@@ -1,0 +1,185 @@
+# Quality Gate Configuration for Performance Testing
+# Defines acceptance criteria and thresholds for different test types
+# Used in CI/CD pipelines to automatically pass/fail builds
+
+# ==============================================================================
+# SMOKE TEST QUALITY GATES
+# ==============================================================================
+smoke:
+  description: "Quick health check - minimal load validation"
+  acceptance_criteria:
+    # Error rate must be extremely low
+    http_req_failed_rate_max: 0.01  # 1%
+    
+    # Response times should be fast with minimal load
+    http_req_duration_p95_max: 800   # milliseconds
+    http_req_duration_p99_max: 1500  # milliseconds
+    
+    # Check success rate
+    checks_rate_min: 0.99  # 99%
+    
+    # Request throughput (minimum RPS to validate basic functionality)
+    http_reqs_min: 10
+  
+  abort_on_fail: true
+  delay_abort_eval: "10s"
+
+# ==============================================================================
+# LOAD TEST QUALITY GATES
+# ==============================================================================
+load:
+  description: "Baseline performance validation under expected load"
+  acceptance_criteria:
+    # Error rate threshold
+    http_req_failed_rate_max: 0.02  # 2%
+    
+    # Response time SLAs
+    http_req_duration_p50_max: 400   # milliseconds
+    http_req_duration_p95_max: 800   # milliseconds
+    http_req_duration_p99_max: 1500  # milliseconds
+    
+    # Check success rate
+    checks_rate_min: 0.95  # 95%
+    
+    # Custom metrics (if defined)
+    login_success_rate_min: 0.95
+    checkout_success_rate_min: 0.98
+    search_success_rate_min: 0.99
+    
+    # Minimum throughput achieved
+    http_reqs_min: 1000
+  
+  abort_on_fail: true
+  delay_abort_eval: "30s"
+
+# ==============================================================================
+# STRESS TEST QUALITY GATES
+# ==============================================================================
+stress:
+  description: "Capacity testing - find breaking points"
+  acceptance_criteria:
+    # More relaxed thresholds (expecting some failures at peak)
+    http_req_failed_rate_max: 0.10  # 10%
+    
+    # Response times can degrade under stress
+    http_req_duration_p95_max: 2000  # milliseconds
+    http_req_duration_p99_max: 5000  # milliseconds
+    
+    # Check success rate
+    checks_rate_min: 0.80  # 80%
+    
+    # Minimum RPS achieved before failure
+    http_reqs_min: 5000
+  
+  abort_on_fail: false  # Don't abort - we want to see how far we can push
+  delay_abort_eval: "60s"
+
+# ==============================================================================
+# SOAK TEST QUALITY GATES
+# ==============================================================================
+soak:
+  description: "Endurance testing - detect memory leaks and degradation"
+  acceptance_criteria:
+    # Consistent error rate throughout test
+    http_req_failed_rate_max: 0.02  # 2%
+    
+    # No performance degradation over time
+    http_req_duration_p95_max: 800   # milliseconds
+    http_req_duration_p99_max: 1500  # milliseconds
+    
+    # Maintain check success rate
+    checks_rate_min: 0.95  # 95%
+    
+    # Custom metrics remain stable
+    login_success_rate_min: 0.95
+    checkout_success_rate_min: 0.98
+    
+    # Duration validation (must run minimum duration)
+    min_duration_minutes: 120  # 2 hours
+  
+  abort_on_fail: false  # Continue to completion to detect gradual degradation
+  delay_abort_eval: "300s"  # 5 minutes
+
+# ==============================================================================
+# SPIKE TEST QUALITY GATES
+# ==============================================================================
+spike:
+  description: "Burst traffic resilience testing"
+  acceptance_criteria:
+    # Allow higher error rate during spikes
+    http_req_failed_rate_max: 0.15  # 15%
+    
+    # Response times can spike temporarily
+    http_req_duration_p95_max: 3000  # milliseconds
+    http_req_duration_p99_max: 8000  # milliseconds
+    
+    # Check success rate
+    checks_rate_min: 0.75  # 75%
+    
+    # System should recover after spike
+    recovery_time_max_seconds: 60
+  
+  abort_on_fail: false
+  delay_abort_eval: "30s"
+
+# ==============================================================================
+# ENVIRONMENT-SPECIFIC OVERRIDES
+# ==============================================================================
+environments:
+  dev:
+    # More relaxed thresholds for development environment
+    multiplier: 1.5  # Multiply all thresholds by 1.5
+  
+  sit:
+    # Standard thresholds (baseline)
+    multiplier: 1.0
+  
+  uat:
+    # Stricter thresholds for UAT (production-like)
+    multiplier: 0.8  # More strict (80% of standard thresholds)
+    load:
+      http_req_failed_rate_max: 0.01  # 1%
+      http_req_duration_p95_max: 500   # milliseconds
+      checks_rate_min: 0.98  # 98%
+
+# ==============================================================================
+# NOTIFICATION RULES
+# ==============================================================================
+notifications:
+  # When to send notifications
+  on_failure: true
+  on_threshold_breach: true
+  on_degradation: true
+  
+  # Channels
+  channels:
+    - slack
+    - email
+  
+  # Recipients
+  slack_channel: "#performance-alerts"
+  email_recipients:
+    - qa-team@example.com
+    - devops-team@example.com
+
+# ==============================================================================
+# TREND ANALYSIS
+# ==============================================================================
+trend_analysis:
+  enabled: true
+  
+  # Compare against historical data
+  compare_last_n_runs: 5
+  
+  # Alert if metrics degrade by percentage
+  degradation_alert_threshold: 15  # percent
+  
+  # Metrics to track for trends
+  tracked_metrics:
+    - http_req_duration_p95
+    - http_req_duration_p99
+    - http_req_failed_rate
+    - checks_rate
+    - login_success_rate
+    - checkout_success_rate
+

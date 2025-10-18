@@ -1,0 +1,18 @@
+# Grafana Dashboard Provisioning
+# Automatically loads dashboards from the dashboards directory
+
+apiVersion: 1
+
+providers:
+  # Dashboard provider for k6 performance tests
+  - name: 'k6-performance-dashboards'
+    orgId: 1
+    folder: 'k6 Performance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true
+

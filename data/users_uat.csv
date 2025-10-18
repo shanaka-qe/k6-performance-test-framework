@@ -1,0 +1,13 @@
+username,password,email,role
+uatuser1,SecurePass789!,uatuser1@example.com,user
+uatuser2,SecurePass789!,uatuser2@example.com,user
+uatuser3,SecurePass789!,uatuser3@example.com,user
+uatuser4,SecurePass789!,uatuser4@example.com,user
+uatuser5,SecurePass789!,uatuser5@example.com,user
+uatuser6,SecurePass789!,uatuser6@example.com,premium
+uatuser7,SecurePass789!,uatuser7@example.com,premium
+uatuser8,SecurePass789!,uatuser8@example.com,premium
+uatuser9,SecurePass789!,uatuser9@example.com,premium
+uatuser10,SecurePass789!,uatuser10@example.com,premium
+uatadmin1,AdminUAT321!,uatadmin1@example.com,admin
+

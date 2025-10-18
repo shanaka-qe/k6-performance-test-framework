@@ -1,0 +1,157 @@
+# Docker Compose Configuration
+# Complete k6 + Prometheus + Grafana stack for local performance testing
+# Provides full observability with metrics collection and visualization
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # k6 Performance Testing Service
+  # ===========================================================================
+  k6:
+    image: grafana/k6:0.48.0
+    container_name: k6-runner
+    # Mount framework files into container
+    volumes:
+      - ../scripts:/scripts:ro
+      - ../lib:/lib:ro
+      - ../env:/env:ro
+      - ../data:/data:ro
+      - ../results:/results
+    # Environment variables for k6
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+      - ENV=dev
+      - K6_NO_USAGE_REPORT=true
+    # Networks for communication with Prometheus
+    networks:
+      - k6-network
+    # Command is overridden when running specific tests
+    # Example: docker-compose run k6 run /scripts/load/api_load_mainflow.ts
+    command: run /scripts/smoke/api_smoke.ts
+
+  # ===========================================================================
+  # Prometheus Time-Series Database
+  # ===========================================================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    # Mount Prometheus configuration
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    # Expose Prometheus port
+    ports:
+      - "9090:9090"
+    # Command to start Prometheus with configuration
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    networks:
+      - k6-network
+    # Restart policy
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Grafana Visualization Platform
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana
+    # Mount Grafana configuration and dashboards
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    # Expose Grafana port
+    ports:
+      - "3000:3000"
+    # Environment variables for Grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=
+    networks:
+      - k6-network
+    # Depends on Prometheus
+    depends_on:
+      - prometheus
+    # Restart policy
+    restart: unless-stopped
+
+  # ===========================================================================
+  # InfluxDB (Optional - Alternative to Prometheus)
+  # ===========================================================================
+  # Uncomment if you prefer InfluxDB for metrics storage
+  # influxdb:
+  #   image: influxdb:2.7
+  #   container_name: influxdb
+  #   ports:
+  #     - "8086:8086"
+  #   volumes:
+  #     - influxdb-data:/var/lib/influxdb2
+  #   environment:
+  #     - DOCKER_INFLUXDB_INIT_MODE=setup
+  #     - DOCKER_INFLUXDB_INIT_USERNAME=admin
+  #     - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+  #     - DOCKER_INFLUXDB_INIT_ORG=k6
+  #     - DOCKER_INFLUXDB_INIT_BUCKET=k6-metrics
+  #     - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=k6-token-secret
+  #   networks:
+  #     - k6-network
+  #   restart: unless-stopped
+
+# ===========================================================================
+# Networks
+# ===========================================================================
+networks:
+  k6-network:
+    driver: bridge
+    name: k6-performance-network
+
+# ===========================================================================
+# Persistent Volumes
+# ===========================================================================
+volumes:
+  prometheus-data:
+    name: prometheus-metrics-data
+  grafana-data:
+    name: grafana-config-data
+  # influxdb-data:
+  #   name: influxdb-metrics-data
+
+# ===========================================================================
+# Usage Instructions
+# ===========================================================================
+# 
+# Start the stack:
+#   docker-compose -f tools/docker-compose.yml up -d
+#
+# Run a specific test:
+#   docker-compose -f tools/docker-compose.yml run --rm k6 run /scripts/load/api_load_mainflow.ts
+#
+# Run with environment override:
+#   docker-compose -f tools/docker-compose.yml run --rm -e ENV=sit k6 run /scripts/load/api_load_mainflow.ts
+#
+# View Prometheus metrics:
+#   Open http://localhost:9090
+#
+# View Grafana dashboards:
+#   Open http://localhost:3000 (admin/admin)
+#
+# Stop the stack:
+#   docker-compose -f tools/docker-compose.yml down
+#
+# Stop and remove volumes:
+#   docker-compose -f tools/docker-compose.yml down -v
+#
+# ===========================================================================
+

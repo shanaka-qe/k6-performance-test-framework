@@ -1,0 +1,282 @@
+/**
+ * Jenkins Pipeline for k6 Performance Testing
+ * Supports multiple environments and test types
+ * Integrates with Grafana for results visualization
+ */
+
+// Pipeline parameters
+properties([
+    parameters([
+        choice(
+            name: 'TEST_TYPE',
+            choices: ['smoke', 'load', 'stress', 'soak', 'spike'],
+            description: 'Type of performance test to run'
+        ),
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'sit', 'uat'],
+            description: 'Target environment'
+        ),
+        string(
+            name: 'VUS',
+            defaultValue: '20',
+            description: 'Number of virtual users (overrides config)'
+        ),
+        string(
+            name: 'DURATION',
+            defaultValue: '10m',
+            description: 'Test duration (overrides config)'
+        ),
+        booleanParam(
+            name: 'FAIL_ON_THRESHOLD_BREACH',
+            defaultValue: true,
+            description: 'Fail build if performance thresholds are breached'
+        )
+    ])
+])
+
+pipeline {
+    // Agent configuration
+    agent {
+        docker {
+            image 'grafana/k6:0.48.0'
+            args '-v ${WORKSPACE}:/app -w /app'
+        }
+    }
+
+    // Environment variables
+    environment {
+        K6_NO_USAGE_REPORT = 'true'
+        ENV = "${params.ENVIRONMENT}"
+        BASE_URL = credentials('BASE_URL_' + params.ENVIRONMENT.toUpperCase())
+        CLIENT_ID = credentials('CLIENT_ID')
+        CLIENT_SECRET = credentials('CLIENT_SECRET')
+        GRAFANA_URL = credentials('GRAFANA_URL')
+        PROMETHEUS_URL = credentials('PROMETHEUS_URL')
+    }
+
+    // Build stages
+    stages {
+        // ====================================================================
+        // Stage 1: Checkout and Setup
+        // ====================================================================
+        stage('Checkout') {
+            steps {
+                echo "Checking out code..."
+                checkout scm
+                
+                echo "Environment: ${params.ENVIRONMENT}"
+                echo "Test Type: ${params.TEST_TYPE}"
+            }
+        }
+
+        // ====================================================================
+        // Stage 2: Lint and Validate
+        // ====================================================================
+        stage('Lint') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    args '-v ${WORKSPACE}:/app -w /app'
+                }
+            }
+            steps {
+                echo "Installing dependencies..."
+                sh 'npm ci'
+                
+                echo "Running linter..."
+                sh 'npm run lint'
+                
+                echo "Checking formatting..."
+                sh 'npm run format:check'
+                
+                echo "Type checking..."
+                sh 'npm run type-check'
+            }
+        }
+
+        // ====================================================================
+        // Stage 3: Run Performance Test
+        // ====================================================================
+        stage('Run Performance Test') {
+            steps {
+                script {
+                    def testScript = getTestScript(params.TEST_TYPE)
+                    def outputFile = "results/${params.TEST_TYPE}-${params.ENVIRONMENT}-${BUILD_NUMBER}.json"
+                    
+                    echo "Running ${params.TEST_TYPE} test on ${params.ENVIRONMENT}..."
+                    echo "Test script: ${testScript}"
+                    echo "Output file: ${outputFile}"
+                    
+                    // Create results directory
+                    sh 'mkdir -p results'
+                    
+                    // Run k6 test
+                    def testStatus = sh(
+                        script: """
+                            k6 run \\
+                                --out json=${outputFile} \\
+                                --env ENV=${params.ENVIRONMENT} \\
+                                --env VUS=${params.VUS} \\
+                                --env DURATION=${params.DURATION} \\
+                                ${testScript}
+                        """,
+                        returnStatus: true
+                    )
+                    
+                    // Store test status for later stages
+                    env.TEST_STATUS = testStatus.toString()
+                    
+                    // Archive results
+                    archiveArtifacts artifacts: 'results/**/*.json', fingerprint: true
+                    
+                    // Fail build if thresholds breached and flag is set
+                    if (testStatus != 0 && params.FAIL_ON_THRESHOLD_BREACH) {
+                        error("Performance test failed: Thresholds breached")
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // Stage 4: Analyze Results
+        // ====================================================================
+        stage('Analyze Results') {
+            steps {
+                script {
+                    echo "Analyzing test results..."
+                    
+                    // Parse JSON results
+                    def resultsFile = "results/${params.TEST_TYPE}-${params.ENVIRONMENT}-${BUILD_NUMBER}.json"
+                    
+                    if (fileExists(resultsFile)) {
+                        def results = readJSON file: resultsFile
+                        
+                        // Extract key metrics
+                        def metrics = results.metrics
+                        def httpReqs = metrics.http_reqs?.values?.count ?: 0
+                        def httpReqFailed = metrics.http_req_failed?.values?.rate ?: 0
+                        def httpReqDuration = metrics.http_req_duration?.values
+                        
+                        // Print summary
+                        echo """
+                        ╔══════════════════════════════════════════════════════════╗
+                        ║           PERFORMANCE TEST SUMMARY                       ║
+                        ╠══════════════════════════════════════════════════════════╣
+                        ║ Test Type:        ${params.TEST_TYPE.padRight(38)} ║
+                        ║ Environment:      ${params.ENVIRONMENT.padRight(38)} ║
+                        ║ Total Requests:   ${httpReqs.toString().padRight(38)} ║
+                        ║ Error Rate:       ${(httpReqFailed * 100).round(2)}%${' '.multiply(36)} ║
+                        ║ Avg Duration:     ${httpReqDuration?.avg?.round(2)}ms${' '.multiply(34)} ║
+                        ║ P95 Duration:     ${httpReqDuration?.p95?.round(2)}ms${' '.multiply(34)} ║
+                        ║ P99 Duration:     ${httpReqDuration?.p99?.round(2)}ms${' '.multiply(34)} ║
+                        ╚══════════════════════════════════════════════════════════╝
+                        """
+                        
+                        // Set build description
+                        currentBuild.description = """
+                        ${params.TEST_TYPE} | ${params.ENVIRONMENT} | 
+                        Reqs: ${httpReqs} | Errors: ${(httpReqFailed * 100).round(2)}%
+                        """
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // Stage 5: Publish Results
+        // ====================================================================
+        stage('Publish Results') {
+            steps {
+                script {
+                    echo "Publishing results to Grafana/Prometheus..."
+                    
+                    // Link to Grafana dashboard
+                    def grafanaUrl = "${GRAFANA_URL}/d/k6-perf-overview/k6-performance-test-overview"
+                    echo "View results in Grafana: ${grafanaUrl}"
+                    
+                    // Add link to build
+                    currentBuild.displayName = "#${BUILD_NUMBER} - ${params.TEST_TYPE}"
+                }
+            }
+        }
+    }
+
+    // Post-build actions
+    post {
+        always {
+            echo "Cleaning up..."
+            
+            // Archive test results
+            junit allowEmptyResults: true, testResults: 'results/**/*.xml'
+            
+            // Publish HTML reports if available
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'reports',
+                reportFiles: '*.html',
+                reportName: 'Performance Test Report'
+            ])
+        }
+        
+        success {
+            echo "✅ Performance test completed successfully!"
+            
+            // Send success notification
+            script {
+                if (env.SLACK_WEBHOOK) {
+                    slackSend(
+                        color: 'good',
+                        message: """✅ Performance Test Passed
+                        Test: ${params.TEST_TYPE}
+                        Environment: ${params.ENVIRONMENT}
+                        Build: ${BUILD_URL}"""
+                    )
+                }
+            }
+        }
+        
+        failure {
+            echo "❌ Performance test failed!"
+            
+            // Send failure notification
+            script {
+                if (env.SLACK_WEBHOOK) {
+                    slackSend(
+                        color: 'danger',
+                        message: """❌ Performance Test Failed
+                        Test: ${params.TEST_TYPE}
+                        Environment: ${params.ENVIRONMENT}
+                        Build: ${BUILD_URL}
+                        Please review the results and investigate."""
+                    )
+                }
+            }
+        }
+        
+        unstable {
+            echo "⚠️ Performance test is unstable (thresholds not met)"
+        }
+    }
+}
+
+// Helper function to get test script path
+def getTestScript(testType) {
+    switch(testType) {
+        case 'smoke':
+            return 'scripts/smoke/api_smoke.ts'
+        case 'load':
+            return 'scripts/load/api_load_mainflow.ts'
+        case 'stress':
+            return 'scripts/stress/api_stress.ts'
+        case 'soak':
+            return 'scripts/soak/api_soak.ts'
+        case 'spike':
+            return 'scripts/spike/api_spike.ts'
+        default:
+            error("Unknown test type: ${testType}")
+    }
+}
+
