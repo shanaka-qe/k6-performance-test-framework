@@ -1,7 +1,9 @@
 # 🚀 k6 Performance Testing Framework
 
-[![Performance Tests](https://github.com/your-org/k6-performance-test-framework/workflows/Performance%20Tests/badge.svg)]
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![k6](https://img.shields.io/badge/k6-v0.52.0-blue.svg)](https://k6.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 > **Enterprise-grade, code-first k6 performance testing framework** for API, microservices, and web applications. Built for senior performance engineers who value modularity, type safety, and CI/CD integration.
 
@@ -17,10 +19,10 @@ This production-ready framework was originally built for a client engagement and
 ## 🏗️ Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           k6 Performance Testing Framework                      │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                           k6 Performance Testing Framework                    │
+├───────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐            │
 │  │   Test Scripts  │    │   Core Library  │    │   Scenarios     │            │
 │  │                 │    │                 │    │                 │            │
@@ -33,7 +35,7 @@ This production-ready framework was originally built for a client engagement and
 │           │                       │                       │                   │
 │           └───────────────────────┼───────────────────────┘                   │
 │                                   │                                           │
-│  ┌─────────────────────────────────┼───────────────────────────────────────┐  │
+│  ┌────────────────────────────────┼────────────────────────────────────────┐  │
 │  │                    Configuration Layer                                  │  │
 │  │                                                                         │  │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │  │
