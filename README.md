@@ -194,19 +194,22 @@ k6-performance-test-framework/
 │   ├── common.json               # Shared config across environments
 │   ├── dev.json                  # Development environment
 │   ├── sit.json                  # System Integration Test
-│   └── uat.json                  # User Acceptance Test
+│   ├── uat.json                  # User Acceptance Test
+│   └── example.env               # Sample environment variables
 │
 ├── data/                         # 📦 Test data
-│   ├── users_dev.csv             # Test users (per environment)
+│   ├── users_dev.csv             # Test users (dev environment)
+│   ├── users_uat.csv             # Test users (uat environment)
 │   └── payloads/                 # Request payload templates
 │       ├── order_request.json
-│       └── search_payload.json
+│       ├── search_payload.json
+│       └── user_profile_update.json
 │
-├── tools/                        # 🐳 Docker & Observability
-│   ├── Dockerfile                # k6 runner image
-│   ├── docker/
-│   │   ├── docker-compose.yml    # Full stack (k6 + Prometheus + Grafana)
-│   │   └── Dockerfile            # k6 test execution container
+├── docker/                       # 🐳 Docker
+│   ├── Dockerfile                # k6 test execution container
+│   └── docker-compose.yml        # Full stack (k6 + Prometheus + Grafana)
+│
+├── tools/                        # 📈 Observability
 │   ├── prometheus/               # Prometheus configuration
 │   └── grafana/                  # Grafana dashboards & provisioning
 │
@@ -215,7 +218,7 @@ k6-performance-test-framework/
 │   └── qa-quality-gate.yml       # Quality gate definitions
 │
 ├── .github/workflows/            # GitHub Actions workflows
-│   └── performance-tests.yml
+│   └── performance-tests.yml.disabled
 │
 ├── docs/                         # 📚 Documentation
 │   ├── test-strategy.md
@@ -362,7 +365,7 @@ Automatically runs performance tests on:
 - Merges to main (load tests)
 - Scheduled runs (nightly stress/soak tests)
 
-See [`.github/workflows/performance-tests.yml`](.github/workflows/performance-tests.yml)
+See [`.github/workflows/performance-tests.yml.disabled`](.github/workflows/performance-tests.yml.disabled) (disabled by default — rename to `.yml` to enable)
 
 ### Jenkins
 
@@ -465,7 +468,7 @@ We welcome contributions! Please see our [Contributing Guide](docs/contributing.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](legal/LICENSE) file for details.
 
 ---
 
